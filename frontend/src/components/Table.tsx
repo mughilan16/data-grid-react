@@ -12,7 +12,7 @@ export function Table() {
   if (isLoading || !data) {
     return <>Loading</>;
   }
-  if (data.items === null || data.items.length) {
+  if (data.items === null || data.items.length === 0) {
     return <>Table Empty</>
   }
   return (
