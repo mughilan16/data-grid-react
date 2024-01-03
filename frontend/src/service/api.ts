@@ -1,5 +1,5 @@
 import axios from "axios"
-import { Item, Items } from "../types/Item"
+import { Item } from "../types/Item"
 
 const URL = "http://localhost:3001"
 const axiosInstance = axios.create({baseURL: URL})

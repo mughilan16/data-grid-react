@@ -25,18 +25,26 @@ func connectDB() *sql.DB {
 	return db
 }
 
-func AddItemToDB(item AddItemRequest) {
+func AddItemToDB(item AddItemRequest) Item {
 	db := connectDB()
-	query := fmt.Sprintf("insert into items(name, value) VALUES('%s', %s)", item.Name, item.Value)
-	_, err := db.Query(query)
+	query := fmt.Sprintf("insert into items(name, value) VALUES('%s', '%s') returning id, name, value", item.Name, item.Value)
+	row, err := db.Query(query)
 	if err != nil {
 		log.Panic(err)
+	}
+	newItem := new(Item)
+	if row.Next() {
+		err := row.Scan(&newItem.ID, &newItem.Name, &newItem.Value)
+		if err != nil {
+			fmt.Println(err)
+		}
 	}
 	defer db.Close()
 	err = db.Ping()
 	if err != nil {
 		log.Panic(err)
 	}
+	return *newItem
 }
 
 func GetItems() []Item {

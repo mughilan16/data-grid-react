@@ -1,11 +1,15 @@
 import { Button, FormControl, TextField } from "@mui/material";
 import { Controller, useForm } from "react-hook-form";
 import { addItem, addItemRequest } from "../service/api";
+import { Item } from "../types/Item";
 
-export function AddForm() {
+export function AddForm(props: {
+  setItems: React.Dispatch<React.SetStateAction<Array<Item>>>;
+}) {
   const { control, handleSubmit } = useForm<addItemRequest>();
   const onSubmitAdd = (data: addItemRequest) => {
-    addItem(data);
+    const newItem = addItem(data);
+    //props.setItems(prev => {...prev, newItem})
   };
   return (
     <FormControl sx={{ display: "flex", flexDirection: "row", gap: "5px" }}>

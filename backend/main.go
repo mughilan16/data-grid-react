@@ -38,8 +38,8 @@ func main() {
 		var request AddItemRequest
 		c.Bind(&request)
 		fmt.Println(request)
-		AddItemToDB(request)
-		return c.JSON(200, nil)
+		newItem := AddItemToDB(request)
+		return c.JSON(200, newItem)
 	})
 	e.GET("/get-items", func(c echo.Context) error {
 		items := GetItems()
