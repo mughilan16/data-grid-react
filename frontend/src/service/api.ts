@@ -14,7 +14,10 @@ export type updateItemRequest = {
   updatedValue: number
 }
 
-export const addItem = async (newItem: addItemRequest) => {
+export const addItem = async (newItem: addItemRequest | undefined) => {
+    if (newItem === undefined) {
+        return
+    }
   return ((await axiosInstance.post<Item>("/add-item", newItem)).data)
 }
 

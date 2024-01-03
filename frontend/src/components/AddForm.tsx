@@ -1,15 +1,36 @@
 import { Button, FormControl, TextField } from "@mui/material";
 import { Controller, useForm } from "react-hook-form";
-import { addItem, addItemRequest } from "../service/api";
+import { addItemRequest } from "../service/api";
 import { Item } from "../types/Item";
+import { useEffect, useState } from "react";
+import { useAddItem } from "../service/queries";
 
 export function AddForm(props: {
   setItems: React.Dispatch<React.SetStateAction<Array<Item>>>;
 }) {
   const { control, handleSubmit } = useForm<addItemRequest>();
+  const [newItemState, setNewItemState] = useState<addItemRequest | undefined>(
+    undefined
+  );
+  const addedItem = useAddItem(newItemState);
+  useEffect(() => {
+    if (addedItem === undefined) {
+      return;
+    }
+    if (addedItem.data === undefined) {
+      return;
+    }
+    const data = addedItem.data;
+    props.setItems((prev) => {
+      if (prev.includes(data)) {
+        return prev;
+      }
+      return [...prev, data];
+    });
+  }, [addedItem]);
+
   const onSubmitAdd = (data: addItemRequest) => {
-    const newItem = addItem(data);
-    //props.setItems(prev => {...prev, newItem})
+    setNewItemState(data);
   };
   return (
     <FormControl sx={{ display: "flex", flexDirection: "row", gap: "5px" }}>
