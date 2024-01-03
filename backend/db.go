@@ -40,10 +40,6 @@ func AddItemToDB(item AddItemRequest) Item {
 		}
 	}
 	defer db.Close()
-	err = db.Ping()
-	if err != nil {
-		log.Panic(err)
-	}
 	return *newItem
 }
 
@@ -51,7 +47,7 @@ func GetItems() []Item {
 	var items []Item
 	db := connectDB()
 	defer db.Close()
-	query := fmt.Sprintf("select id, name, value from items")
+	query := "select id, name, value from items"
 	rows, err := db.Query(query)
 	if err != nil {
 		log.Println(err)
@@ -67,11 +63,28 @@ func GetItems() []Item {
 	return items
 }
 
-func UpdateItemDB(item UpdateItemRequest) {
+func UpdateItemDB(item UpdateItemRequest) Item {
 	db := connectDB()
 	defer db.Close()
-	query := fmt.Sprintf("update items set value=%s where id=%s", item.Value, item.ID)
-	fmt.Println(query)
+	query := fmt.Sprintf("update items set value=%s where id=%s returning id, name, value", item.Value, item.ID)
+	row, err := db.Query(query)
+	if err != nil {
+		log.Println(err)
+	}
+	updatedItem := new(Item)
+	if row.Next() {
+		err := row.Scan(&updatedItem.ID, &updatedItem.Name, &updatedItem.Value)
+		if err != nil {
+			fmt.Println(err)
+		}
+	}
+	return *updatedItem
+}
+
+func DeleteItemsDB(ids string) {
+	db := connectDB()
+	defer db.Close()
+	query := fmt.Sprintf("delete from items where id in (%s)", ids)
 	_, err := db.Query(query)
 	if err != nil {
 		log.Println(err)

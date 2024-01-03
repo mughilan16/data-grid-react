@@ -1,7 +1,9 @@
-import { DataGrid, GridColDef } from "@mui/x-data-grid";
+import { DataGrid, GridColDef, GridRowSelectionModel } from "@mui/x-data-grid";
 import { useGetItems } from "../service/queries";
 import { Item } from "../types/Item";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
+import { Button } from "@mui/material";
+import { deleteItems } from "../service/api";
 
 export function Table(props: {
   items: Array<Item>;
@@ -12,7 +14,15 @@ export function Table(props: {
     { field: "name", headerName: "Name", width: 150 },
     { field: "value", headerName: "Value", width: 150 },
   ];
+  const [selectedRow, setSelectedRow] = useState<GridRowSelectionModel>([]);
   const { data, isLoading } = useGetItems();
+  const deleteSelected = () => {
+    const ids = selectedRow.join(",");
+    deleteItems(ids);
+    props.setItems((prev) =>
+      prev.filter((item) => !selectedRow.includes(item.id))
+    );
+  };
   useEffect(() => {
     if (data?.items) props.setItems(data?.items);
   }, [data]);
@@ -24,11 +34,19 @@ export function Table(props: {
     return <>Table Empty</>;
   }
   return (
-    <DataGrid
-      columns={columns}
-      rows={props.items}
-      checkboxSelection
-      disableRowSelectionOnClick
-    ></DataGrid>
+    <>
+      <DataGrid
+        columns={columns}
+        rows={props.items}
+        checkboxSelection
+        disableRowSelectionOnClick
+        onRowSelectionModelChange={(ids) => {
+          setSelectedRow(ids);
+        }}
+      ></DataGrid>
+      {selectedRow.length !== 0 && (
+        <Button onClick={deleteSelected}>Delete</Button>
+      )}
+    </>
   );
 }

@@ -19,7 +19,7 @@ function App() {
     >
       <Table items={items} setItems={setItems} />
       <AddForm setItems={setItems} />
-      <UpdateForm />
+      <UpdateForm setItems={setItems} />
     </Box>
   );
 }

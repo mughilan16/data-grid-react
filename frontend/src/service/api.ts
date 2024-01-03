@@ -14,10 +14,7 @@ export type updateItemRequest = {
   updatedValue: number
 }
 
-export const addItem = async (newItem: addItemRequest | undefined) => {
-    if (newItem === undefined) {
-        return
-    }
+export const addItem = async (newItem: addItemRequest) => {
   return ((await axiosInstance.post<Item>("/add-item", newItem)).data)
 }
 
@@ -31,4 +28,8 @@ export const getItems = async () => {
 
 export const updateItem = async (updateItem: updateItemRequest) => {
   return ((await axiosInstance.post<Item>("/update-item", updateItem)).data)
+}
+
+export const deleteItems = async (ids: string) => {
+  return (await axiosInstance.post("/delete-items", {ids: ids}))
 }

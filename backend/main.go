@@ -23,6 +23,10 @@ type UpdateItemRequest struct {
 	Value string `json:"updatedValue"`
 }
 
+type DeleteItemsRequest struct {
+	IDS string `json:"ids"`
+}
+
 func main() {
 	e := echo.New()
 	e.Use(middleware.CORSWithConfig(middleware.CORSConfig{
@@ -53,8 +57,14 @@ func main() {
 	e.POST("/update-item", func(c echo.Context) error {
 		var request UpdateItemRequest
 		c.Bind(&request)
-		UpdateItemDB(request)
-		return c.JSON(200, request)
+		updatedItem := UpdateItemDB(request)
+		return c.JSON(200, updatedItem)
+	})
+	e.POST("/delete-items", func(c echo.Context) error {
+		var request DeleteItemsRequest
+		c.Bind(&request)
+		DeleteItemsDB(request.IDS)
+		return c.JSON(200, nil)
 	})
 	e.Logger.Fatal(e.Start(":3001"))
 }
