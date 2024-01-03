@@ -1,35 +1,40 @@
 import axios from "axios"
-import { Item } from "../types/Item"
 
 const URL = "http://localhost:3001"
 const axiosInstance = axios.create({baseURL: URL})
-
-export type addItemRequest = {
+export type Student = {
+  id: string,
+  rrn: string,
   name: string,
-  value: number
+  age: string,
+  grade: string,
+  place: string,
 }
 
-export type updateItemRequest = {
-  id: number,
-  updatedValue: number
+export type addStudentRequest = {
+  rrn: string,
+  name: string,
+  age: string,
+  grade: string,
+  place: string,
 }
 
-export const addItem = async (newItem: addItemRequest) => {
-  return ((await axiosInstance.post<Item>("/add-item", newItem)).data)
+export const addStudent = async (newItem: addStudentRequest) => {
+  return ((await axiosInstance.post<Student>("/add-student", newItem)).data)
 }
 
 type getItemResponse = {
-  items : Array<Item>
+  items : Array<Student>
 }
 
-export const getItems = async () => {
-  return ((await axiosInstance.get<getItemResponse>("/get-items")).data)
+export const getStudents = async () => {
+  return ((await axiosInstance.get<getItemResponse>("/get-students")).data)
 }
 
-export const updateItem = async (updateItem: updateItemRequest) => {
-  return ((await axiosInstance.post<Item>("/update-item", updateItem)).data)
+export const updateStudent = async (updateItem: Student) => {
+  return ((await axiosInstance.post<Student>("/update-student", updateItem)).data)
 }
 
-export const deleteItems = async (ids: string) => {
-  return (await axiosInstance.post("/delete-items", {ids: ids}))
+export const deleteStudents = async (ids: string) => {
+  return (await axiosInstance.post("/delete-students", {ids: ids}))
 }

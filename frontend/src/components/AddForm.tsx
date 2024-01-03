@@ -1,60 +1,182 @@
-import { Button, FormControl, TextField } from "@mui/material";
+import {
+  Autocomplete,
+  Box,
+  Button,
+  FormControl,
+  FormLabel,
+  Modal,
+  TextField,
+} from "@mui/material";
 import { Controller, useForm } from "react-hook-form";
-import { addItem, addItemRequest } from "../service/api";
-import { Item } from "../types/Item";
+import { Student, addStudent, addStudentRequest } from "../service/api";
+import React from "react";
 
 export function AddForm(props: {
-  setItems: React.Dispatch<React.SetStateAction<Array<Item>>>;
+  setStudents: React.Dispatch<React.SetStateAction<Array<Student>>>;
+  isOpen: boolean;
+  setIsOpen: React.Dispatch<React.SetStateAction<boolean>>;
+  setMessageOpen: React.Dispatch<React.SetStateAction<boolean>>;
 }) {
-  const { control, handleSubmit, reset } = useForm<addItemRequest>();
-  const onSubmitAdd = (data: addItemRequest) => {
-    addItem(data).then((res) => {
-      props.setItems((prev) => {
+  const { control, handleSubmit, reset } = useForm<addStudentRequest>();
+  const onSubmitAdd = (data: addStudentRequest) => {
+    addStudent(data).then((res) => {
+      props.setStudents((prev) => {
         return [...prev, res];
       });
     });
     reset();
+    props.setIsOpen(false);
+    props.setMessageOpen(true);
+  };
+  const onClose = () => {
+    props.setIsOpen(false);
+    reset();
   };
   return (
-    <FormControl sx={{ display: "flex", flexDirection: "row", gap: "5px" }}>
-      <Controller
-        name="name"
-        control={control}
-        rules={{ required: true }}
-        render={({ field, formState }) => {
-          const { onChange, value } = field;
-          const { errors } = formState;
-          return (
-            <TextField
-              variant="outlined"
-              onChange={onChange}
-              value={value ? value : ""}
-              label="Name"
-              error={!!errors.name}
-            ></TextField>
-          );
+    <Modal
+      open={props.isOpen}
+      onClose={onClose}
+      aria-labelledby="modal-modal-title"
+      aria-describedby="modal-modal-description"
+    >
+      <FormControl
+        sx={{
+          display: "flex",
+          flexDirection: "column",
+          gap: "5px",
+          position: "absolute" as "absolute",
+          top: "50%",
+          left: "50%",
+          transform: "translate(-50%, -50%)",
+          width: 400,
+          bgcolor: "background.paper",
+          border: "1px solid #666666",
+          boxShadow: 24,
+          borderRadius: "7px",
+          p: 3,
         }}
-      ></Controller>
-      <Controller
-        name="value"
-        control={control}
-        rules={{ required: true }}
-        render={({ field, formState }) => {
-          const { onChange, value } = field;
-          const { errors } = formState;
-          return (
-            <TextField
-              variant="outlined"
-              onChange={onChange}
-              value={value ? value : ""}
-              placeholder="Value"
-              label="Value"
-              error={!!errors.value}
-            ></TextField>
-          );
-        }}
-      ></Controller>
-      <Button onClick={handleSubmit(onSubmitAdd)}>ADD</Button>
-    </FormControl>
+      >
+        <FormLabel sx={{ fontSize: 25, padding: "10px", textAlign: "center" }}>
+          Add New Student
+        </FormLabel>
+        <Box sx={{ display: "flex", flexDirection: "column", gap: "0.6rem" }}>
+          <Controller
+            name="rrn"
+            control={control}
+            rules={{ required: true }}
+            render={({ field, formState }) => {
+              const { onChange, value } = field;
+              const { errors } = formState;
+              return (
+                <TextField
+                  variant="outlined"
+                  onChange={onChange}
+                  value={value ? value : ""}
+                  label="RRN"
+                  error={!!errors.rrn}
+                ></TextField>
+              );
+            }}
+          ></Controller>
+
+          <Controller
+            name="name"
+            control={control}
+            rules={{ required: true }}
+            render={({ field, formState }) => {
+              const { onChange, value } = field;
+              const { errors } = formState;
+              return (
+                <TextField
+                  variant="outlined"
+                  onChange={onChange}
+                  value={value ? value : ""}
+                  label="Name"
+                  error={!!errors.name}
+                ></TextField>
+              );
+            }}
+          ></Controller>
+
+          <Controller
+            name="age"
+            control={control}
+            rules={{ required: true }}
+            render={({ field, formState }) => {
+              const { onChange, value } = field;
+              const { errors } = formState;
+              return (
+                <TextField
+                  variant="outlined"
+                  onChange={onChange}
+                  value={value ? value : ""}
+                  label="Age"
+                  error={!!errors.age}
+                ></TextField>
+              );
+            }}
+          ></Controller>
+          <Controller
+            name="grade"
+            control={control}
+            rules={{ required: true }}
+            render={({ field, formState }) => {
+              const { onChange, value } = field;
+              const { errors } = formState;
+              return (
+                <Autocomplete
+                  value={value ? value : ""}
+                  onChange={(_, newValue) => {
+                    onChange(newValue);
+                  }}
+                  options={["S", "A", "B", "C", "D", "E", "F"]}
+                  renderInput={(params) => (
+                    <TextField
+                      {...params}
+                      label="Grade"
+                      error={!!errors.grade}
+                    ></TextField>
+                  )}
+                ></Autocomplete>
+              );
+            }}
+          ></Controller>
+
+          <Controller
+            name="place"
+            control={control}
+            rules={{ required: true }}
+            render={({ field, formState }) => {
+              const { onChange, value } = field;
+              const { errors } = formState;
+              return (
+                <TextField
+                  variant="outlined"
+                  onChange={onChange}
+                  value={value ? value : ""}
+                  label="Place"
+                  error={!!errors.place}
+                ></TextField>
+              );
+            }}
+          ></Controller>
+          <Button
+            onClick={handleSubmit(onSubmitAdd)}
+            sx={{ padding: "0.7rem" }}
+            variant="contained"
+          >
+            ADD
+          </Button>
+          <Button
+            onClick={() => props.setIsOpen(false)}
+            color="error"
+            sx={{ padding: "0.7rem" }}
+            variant="outlined"
+          >
+            CANCEL
+          </Button>
+        </Box>
+      </FormControl>
+    </Modal>
   );
 }

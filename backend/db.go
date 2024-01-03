@@ -25,68 +25,70 @@ func connectDB() *sql.DB {
 	return db
 }
 
-func AddItemToDB(item AddItemRequest) Item {
-	db := connectDB()
-	query := fmt.Sprintf("insert into items(name, value) VALUES('%s', '%s') returning id, name, value", item.Name, item.Value)
-	row, err := db.Query(query)
-	if err != nil {
-		log.Panic(err)
-	}
-	newItem := new(Item)
+func ScanStudent(row *sql.Rows) Student {
+	student := new(Student)
 	if row.Next() {
-		err := row.Scan(&newItem.ID, &newItem.Name, &newItem.Value)
+		err := row.Scan(&student.ID, &student.RRN, &student.Name, &student.Age, &student.Grade, &student.Place)
 		if err != nil {
 			fmt.Println(err)
 		}
 	}
-	defer db.Close()
-	return *newItem
+	return *student
 }
 
-func GetItems() []Item {
-	var items []Item
+func AddStudentDB(studentDetails AddStudentRequest) Student {
+	db := connectDB()
+	query := fmt.Sprintf("insert into student(rrn, name, age, grade, place) VALUES('%s', '%s', '%s', '%s', '%s') returning id, rrn, name, age, grade, place", studentDetails.RRN, studentDetails.Name, studentDetails.Age, studentDetails.Grade, studentDetails.Place)
+	row, err := db.Query(query)
+	if err != nil {
+		log.Panic(err)
+	}
+	newStudent := ScanStudent(row)
+	defer db.Close()
+	return newStudent
+}
+
+func GetStudents() []Student {
+	var students []Student
 	db := connectDB()
 	defer db.Close()
-	query := "select id, name, value from items"
+	query := "select id, rrn, name, age, grade, place from student"
 	rows, err := db.Query(query)
 	if err != nil {
 		log.Println(err)
 	}
 	for rows.Next() {
-		item := new(Item)
-		err := rows.Scan(&item.ID, &item.Name, &item.Value)
+		student := new(Student)
+		err := rows.Scan(&student.ID, &student.RRN, &student.Name, &student.Age, &student.Grade, &student.Place)
 		if err != nil {
 			fmt.Println(err)
 		}
-		items = append(items, *item)
+		students = append(students, *student)
 	}
-	return items
+	return students
 }
 
-func UpdateItemDB(item UpdateItemRequest) Item {
+func UpdateStudentDB(student UpdateStudentRequest) Student {
 	db := connectDB()
 	defer db.Close()
-	query := fmt.Sprintf("update items set value=%s where id=%s returning id, name, value", item.Value, item.ID)
+	query := fmt.Sprintf("update student set rrn='%s', name='%s', age='%s', grade='%s', place='%s' where id=%s returning id, rrn, name, age, grade, place", student.RRN, student.Name, student.Age, student.Grade, student.Place, student.ID)
 	row, err := db.Query(query)
 	if err != nil {
 		log.Println(err)
 	}
-	updatedItem := new(Item)
-	if row.Next() {
-		err := row.Scan(&updatedItem.ID, &updatedItem.Name, &updatedItem.Value)
-		if err != nil {
-			fmt.Println(err)
-		}
-	}
-	return *updatedItem
+	updatedStudent := ScanStudent(row)
+	return updatedStudent
 }
 
-func DeleteItemsDB(ids string) {
+func DeleteStudentDB(ids string) error {
 	db := connectDB()
 	defer db.Close()
-	query := fmt.Sprintf("delete from items where id in (%s)", ids)
+	query := fmt.Sprintf("delete from student where id in (%s)", ids)
+	fmt.Println(query)
 	_, err := db.Query(query)
 	if err != nil {
 		log.Println(err)
+		return err
 	}
+	return nil
 }

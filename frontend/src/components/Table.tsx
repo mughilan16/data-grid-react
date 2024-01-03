@@ -1,30 +1,25 @@
 import { DataGrid, GridColDef, GridRowSelectionModel } from "@mui/x-data-grid";
 import { useGetItems } from "../service/queries";
-import { Item } from "../types/Item";
-import { useEffect, useState } from "react";
-import { Button } from "@mui/material";
-import { deleteItems } from "../service/api";
+import { useEffect } from "react";
+import { Student } from "../service/api";
 
 export function Table(props: {
-  items: Array<Item>;
-  setItems: React.Dispatch<React.SetStateAction<Array<Item>>>;
+  students: Array<Student>;
+  setStudents: React.Dispatch<React.SetStateAction<Array<Student>>>;
+  selectedRow: GridRowSelectionModel;
+  setSelectedRow: React.Dispatch<React.SetStateAction<GridRowSelectionModel>>;
 }) {
   const columns: GridColDef[] = [
     { field: "id", headerName: "ID", width: 90 },
+    { field: "rrn", headerName: "RRN", width: 100 },
     { field: "name", headerName: "Name", width: 150 },
-    { field: "value", headerName: "Value", width: 150 },
+    { field: "age", headerName: "Age", width: 100 },
+    { field: "grade", headerName: "Grade", width: 80 },
+    { field: "place", headerName: "Value", width: 150 },
   ];
-  const [selectedRow, setSelectedRow] = useState<GridRowSelectionModel>([]);
   const { data, isLoading } = useGetItems();
-  const deleteSelected = () => {
-    const ids = selectedRow.join(",");
-    deleteItems(ids);
-    props.setItems((prev) =>
-      prev.filter((item) => !selectedRow.includes(item.id))
-    );
-  };
   useEffect(() => {
-    if (data?.items) props.setItems(data?.items);
+    if (data?.items) props.setStudents(data?.items);
   }, [data]);
 
   if (isLoading || !data) {
@@ -37,16 +32,13 @@ export function Table(props: {
     <>
       <DataGrid
         columns={columns}
-        rows={props.items}
+        rows={props.students}
         checkboxSelection
         disableRowSelectionOnClick
         onRowSelectionModelChange={(ids) => {
-          setSelectedRow(ids);
+          props.setSelectedRow(ids);
         }}
       ></DataGrid>
-      {selectedRow.length !== 0 && (
-        <Button onClick={deleteSelected}>Delete</Button>
-      )}
     </>
   );
 }

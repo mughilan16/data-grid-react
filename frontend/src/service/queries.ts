@@ -1,9 +1,9 @@
 import { useQuery } from "react-query";
-import { getItems } from "./api";
+import { getStudents } from "./api";
 
 export function useGetItems() {
     return useQuery({
         queryKey: ["items"],
-        queryFn: () => getItems()
+        queryFn: () => getStudents()
     })
 }

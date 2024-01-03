@@ -8,22 +8,33 @@ import (
 	"github.com/labstack/echo/v4/middleware"
 )
 
-type Item struct {
+type Student struct {
 	ID    string `json:"id"`
+	RRN   string `json:"rrn"`
 	Name  string `json:"name"`
-	Value string `json:"value"`
-}
-type AddItemRequest struct {
-	Name  string `json:"name"`
-	Value string `json:"value"`
+	Age   string `json:"age"`
+	Grade string `json:"grade"`
+	Place string `json:"place"`
 }
 
-type UpdateItemRequest struct {
-	ID    string `json:"id"`
-	Value string `json:"updatedValue"`
+type AddStudentRequest struct {
+	RRN   string `json:"rrn"`
+	Name  string `json:"name"`
+	Age   string `json:"age"`
+	Grade string `json:"grade"`
+	Place string `json:"place"`
 }
 
-type DeleteItemsRequest struct {
+type UpdateStudentRequest struct {
+	ID    string `json:"id"`
+	RRN   string `json:"rrn"`
+	Name  string `json:"name"`
+	Age   string `json:"age"`
+	Grade string `json:"grade"`
+	Place string `json:"place"`
+}
+
+type DeleteStudentsRequest struct {
 	IDS string `json:"ids"`
 }
 
@@ -38,32 +49,33 @@ func main() {
 		return c.String(http.StatusOK, "Hello, World")
 	})
 
-	e.POST("/add-item", func(c echo.Context) error {
-		var request AddItemRequest
+	e.POST("/add-student", func(c echo.Context) error {
+		var request AddStudentRequest
 		c.Bind(&request)
 		fmt.Println(request)
-		newItem := AddItemToDB(request)
+		newItem := AddStudentDB(request)
 		return c.JSON(200, newItem)
 	})
-	e.GET("/get-items", func(c echo.Context) error {
-		items := GetItems()
+	e.GET("/get-students", func(c echo.Context) error {
+		items := GetStudents()
 		var response = struct {
-			Items []Item `json:"items"`
+			Items []Student `json:"items"`
 		}{
 			Items: items,
 		}
 		return c.JSON(200, response)
 	})
-	e.POST("/update-item", func(c echo.Context) error {
-		var request UpdateItemRequest
+	e.POST("/update-student", func(c echo.Context) error {
+		var request UpdateStudentRequest
 		c.Bind(&request)
-		updatedItem := UpdateItemDB(request)
+		updatedItem := UpdateStudentDB(request)
 		return c.JSON(200, updatedItem)
 	})
-	e.POST("/delete-items", func(c echo.Context) error {
-		var request DeleteItemsRequest
+	e.POST("/delete-students", func(c echo.Context) error {
+		var request DeleteStudentsRequest
 		c.Bind(&request)
-		DeleteItemsDB(request.IDS)
+		fmt.Println(request)
+		DeleteStudentDB(request.IDS)
 		return c.JSON(200, nil)
 	})
 	e.Logger.Fatal(e.Start(":3001"))
