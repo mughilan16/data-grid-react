@@ -38,6 +38,10 @@ type DeleteStudentsRequest struct {
 	IDS string `json:"ids"`
 }
 
+type ErrorMessage struct {
+	message string `json:"message"`
+}
+
 func main() {
 	e := echo.New()
 	e.Use(middleware.CORSWithConfig(middleware.CORSConfig{
@@ -53,7 +57,10 @@ func main() {
 		var request AddStudentRequest
 		c.Bind(&request)
 		fmt.Println(request)
-		newItem := AddStudentDB(request)
+		newItem, err := AddStudentDB(request)
+		if err != nil {
+			return c.JSON(500, "Error adding student detail")
+		}
 		return c.JSON(200, newItem)
 	})
 	e.GET("/get-students", func(c echo.Context) error {
