@@ -3,28 +3,29 @@ import axios from "axios"
 const URL = "http://localhost:3001"
 const axiosInstance = axios.create({baseURL: URL})
 export type Student = {
-  id: string,
-  rrn: string,
+  id: number,
+  rrn: number,
   name: string,
-  age: string,
-  grade: string,
+  age: number,
+  grade: "S" | "A" | "B" | "C" | "D" | "E" | "F",
   place: string,
 }
 
 export type addStudentRequest = {
-  rrn: string,
+  rrn: number,
   name: string,
-  age: string,
-  grade: string,
+  age: number,
+  grade: "S" | "A" | "B" | "C" | "D" | "E" | "F",
   place: string,
-}
-
-export const addStudent = async (newItem: addStudentRequest) => {
-  return ((await axiosInstance.post<Student>("/add-student", newItem)).data)
 }
 
 type getItemResponse = {
   items : Array<Student>
+}
+
+export const addStudent = async (newItem: addStudentRequest) => {
+  console.log(newItem)
+  return ((await axiosInstance.post<Student>("/add-student", newItem)).data)
 }
 
 export const getStudents = async () => {

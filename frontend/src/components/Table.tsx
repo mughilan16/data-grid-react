@@ -22,17 +22,12 @@ export function Table(props: {
     if (data?.items) props.setStudents(data?.items);
   }, [data]);
 
-  if (isLoading || !data) {
-    return <>Loading</>;
-  }
-  if (data.items === null || data.items.length === 0) {
-    return <>Table Empty</>;
-  }
   return (
     <>
       <DataGrid
         columns={columns}
         rows={props.students}
+        loading={isLoading}
         checkboxSelection
         disableRowSelectionOnClick
         onRowSelectionModelChange={(ids) => {

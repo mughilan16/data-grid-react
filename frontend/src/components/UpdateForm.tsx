@@ -20,6 +20,12 @@ export function UpdateForm(props: {
 }) {
   const { control, handleSubmit, reset, setValue } = useForm<Student>();
   const onSubmitUpdate = (data: Student) => {
+    const isValid = isUpdateDataValid(data);
+    if (!isValid) {
+      return;
+    }
+    data.age = parseInt(`${data.age}`);
+    data.rrn = parseInt(`${data.rrn}`);
     updateStudent(data).then((data) => {
       props.setStudents((prev) =>
         prev.map((item) => {
@@ -113,11 +119,13 @@ export function UpdateForm(props: {
               const { errors } = formState;
               return (
                 <TextField
+                  type="number"
                   variant="outlined"
                   onChange={onChange}
                   value={value ? value : ""}
                   label="RRN"
                   error={!!errors.rrn}
+                  helperText={errors.rrn && `${errors.rrn.message}`}
                 ></TextField>
               );
             }}
@@ -135,7 +143,8 @@ export function UpdateForm(props: {
                   onChange={onChange}
                   value={value ? value : ""}
                   label="Name"
-                  error={!!errors.age}
+                  error={!!errors.name}
+                  helperText={errors.name && `${errors.name.message}`}
                 ></TextField>
               );
             }}
@@ -149,11 +158,13 @@ export function UpdateForm(props: {
               const { errors } = formState;
               return (
                 <TextField
+                  type="number"
                   variant="outlined"
                   onChange={onChange}
                   value={value ? value : ""}
                   label="Age"
                   error={!!errors.age}
+                  helperText={errors.age && `${errors.age.message}`}
                 ></TextField>
               );
             }}
@@ -178,6 +189,7 @@ export function UpdateForm(props: {
                       {...params}
                       label="Grade"
                       error={!!errors.grade}
+                      helperText={errors.grade && `${errors.grade.message}`}
                     ></TextField>
                   )}
                 ></Autocomplete>
@@ -199,6 +211,7 @@ export function UpdateForm(props: {
                   value={value ? value : ""}
                   label="Place"
                   error={!!errors.place}
+                  helperText={errors.place && `${errors.place.message}`}
                 ></TextField>
               );
             }}
@@ -222,4 +235,29 @@ export function UpdateForm(props: {
       </FormControl>
     </Modal>
   );
+}
+
+function isUpdateDataValid(data: Student): boolean {
+  if (data.id === undefined || data.id === 0) {
+    return false;
+  }
+  if (data.rrn === undefined || data.rrn === 0) {
+    return false;
+  }
+  if (data.name === undefined || data.name === "") {
+    return false;
+  }
+  if (data.age === undefined || data.age === 0) {
+    return false;
+  }
+  if (
+    data.grade === undefined ||
+    !["S", "A", "B", "C", "D", "E", "F"].includes(data.grade)
+  ) {
+    return false;
+  }
+  if (data.place === undefined || data.place === "") {
+    return false;
+  }
+  return true;
 }

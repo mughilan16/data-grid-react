@@ -89,6 +89,7 @@ function App() {
             </Button>
           )}
           <AddForm
+            students={students}
             setStudents={setStudents}
             isOpen={addModal}
             setIsOpen={setAddModal}

@@ -16,9 +16,16 @@ export function AddForm(props: {
   isOpen: boolean;
   setIsOpen: React.Dispatch<React.SetStateAction<boolean>>;
   setMessageOpen: React.Dispatch<React.SetStateAction<boolean>>;
+  students: Array<Student>;
 }) {
   const { control, handleSubmit, reset } = useForm<addStudentRequest>();
   const onSubmitAdd = (data: addStudentRequest) => {
+    const isValid = isAddDataValid(data);
+    if (!isValid) {
+      return;
+    }
+    data.age = parseInt(`${data.age}`);
+    data.rrn = parseInt(`${data.rrn}`);
     addStudent(data).then((res) => {
       props.setStudents((prev) => {
         return [...prev, res];
@@ -32,6 +39,30 @@ export function AddForm(props: {
     props.setIsOpen(false);
     reset();
   };
+  function isAddDataValid(data: addStudentRequest): boolean {
+    if (data.rrn === undefined || data.rrn === 0) {
+      return false;
+    }
+    if (data.name === undefined || data.name === "") {
+      return false;
+    }
+    if (data.age === undefined || data.age === 0) {
+      return false;
+    }
+    if (
+      data.grade === undefined ||
+      !["S", "A", "B", "C", "D", "E", "F"].includes(data.grade)
+    ) {
+      return false;
+    }
+    if (data.place === undefined || data.place === "") {
+      return false;
+    }
+    if (props.students.map((student) => student.rrn).includes(data.rrn)) {
+      return false;
+    }
+    return true;
+  }
   return (
     <Modal
       open={props.isOpen}
@@ -68,13 +99,17 @@ export function AddForm(props: {
               const { onChange, value } = field;
               const { errors } = formState;
               return (
-                <TextField
-                  variant="outlined"
-                  onChange={onChange}
-                  value={value ? value : ""}
-                  label="RRN"
-                  error={!!errors.rrn}
-                ></TextField>
+                <>
+                  <TextField
+                    type="number"
+                    variant="outlined"
+                    onChange={onChange}
+                    value={value ? value : ""}
+                    label="RRN"
+                    error={!!errors.rrn}
+                    helperText={errors.rrn && `${errors.rrn.message}`}
+                  ></TextField>
+                </>
               );
             }}
           ></Controller>
@@ -93,6 +128,7 @@ export function AddForm(props: {
                   value={value ? value : ""}
                   label="Name"
                   error={!!errors.name}
+                  helperText={errors.name && `${errors.name.message}`}
                 ></TextField>
               );
             }}
@@ -107,11 +143,13 @@ export function AddForm(props: {
               const { errors } = formState;
               return (
                 <TextField
+                  type="number"
                   variant="outlined"
                   onChange={onChange}
                   value={value ? value : ""}
                   label="Age"
                   error={!!errors.age}
+                  helperText={errors.age && `${errors.age.message}`}
                 ></TextField>
               );
             }}
@@ -135,6 +173,7 @@ export function AddForm(props: {
                       {...params}
                       label="Grade"
                       error={!!errors.grade}
+                      helperText={errors.grade && `${errors.grade.message}`}
                     ></TextField>
                   )}
                 ></Autocomplete>
@@ -156,6 +195,7 @@ export function AddForm(props: {
                   value={value ? value : ""}
                   label="Place"
                   error={!!errors.place}
+                  helperText={errors.place && `${errors.place.message}`}
                 ></TextField>
               );
             }}

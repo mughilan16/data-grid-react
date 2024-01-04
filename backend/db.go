@@ -42,7 +42,7 @@ func AddStudentDB(studentDetails AddStudentRequest) (*Student, error) {
 		log.Println(err)
 		return nil, err
 	}
-	query := fmt.Sprintf("insert into student(rrn, name, age, grade, place) VALUES('%s', '%s', '%s', '%s', '%s') returning id, rrn, name, age, grade, place", studentDetails.RRN, studentDetails.Name, studentDetails.Age, studentDetails.Grade, studentDetails.Place)
+	query := fmt.Sprintf("insert into student(rrn, name, age, grade, place) VALUES(%d, '%s', %d, '%s', '%s') returning id, rrn, name, age, grade, place", studentDetails.RRN, studentDetails.Name, studentDetails.Age, studentDetails.Grade, studentDetails.Place)
 	row, err := db.Query(query)
 	if err != nil {
 		log.Panic(err)
@@ -60,11 +60,11 @@ func AddStudentDB(studentDetails AddStudentRequest) (*Student, error) {
 func GetStudents() ([]Student, error) {
 	var students []Student
 	db, err := connectDB()
-	defer db.Close()
 	if err != nil {
 		log.Println(err)
 		return nil, err
 	}
+	defer db.Close()
 	query := "select id, rrn, name, age, grade, place from student"
 	rows, err := db.Query(query)
 	if err != nil {
@@ -85,12 +85,12 @@ func GetStudents() ([]Student, error) {
 
 func UpdateStudentDB(student UpdateStudentRequest) (*Student, error) {
 	db, err := connectDB()
-	defer db.Close()
 	if err != nil {
 		log.Println(err)
 		return nil, err
 	}
-	query := fmt.Sprintf("update student set rrn='%s', name='%s', age='%s', grade='%s', place='%s' where id=%s returning id, rrn, name, age, grade, place", student.RRN, student.Name, student.Age, student.Grade, student.Place, student.ID)
+	defer db.Close()
+	query := fmt.Sprintf("update student set rrn=%d, name='%s', age=%d, grade='%s', place='%s' where id=%d returning id, rrn, name, age, grade, place", student.RRN, student.Name, student.Age, student.Grade, student.Place, student.ID)
 	row, err := db.Query(query)
 	if err != nil {
 		log.Println(err)
