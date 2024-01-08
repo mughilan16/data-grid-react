@@ -5,6 +5,7 @@ import "./index.css";
 import { QueryClient, QueryClientProvider } from "react-query";
 import { ThemeProvider } from "styled-components";
 import { CssBaseline, createTheme } from "@mui/material";
+import FileUpload from "./FileUpload.tsx";
 
 const client = new QueryClient();
 const darkTheme = createTheme({
@@ -18,7 +19,7 @@ ReactDOM.createRoot(document.getElementById("root")!).render(
     <QueryClientProvider client={client}>
       <ThemeProvider theme={darkTheme}>
         <CssBaseline />
-        <App />
+        <FileUpload />
       </ThemeProvider>
     </QueryClientProvider>
   </React.StrictMode>

@@ -2,7 +2,10 @@ package main
 
 import (
 	"fmt"
+	"io"
+	"log"
 	"net/http"
+	"os"
 
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
@@ -101,6 +104,31 @@ func main() {
 		err := DeleteStudentDB(request.IDS)
 		if err != nil {
 			return c.JSON(500, ErrorMessage{Message: "Error adding student detail"})
+		}
+		return c.JSON(200, nil)
+	})
+	e.POST("/upload-file", func(c echo.Context) error {
+		file, err := c.FormFile("file")
+		if err != nil {
+			log.Println(err)
+			return err
+		}
+		src, err := file.Open()
+		if err != nil {
+			log.Println(err)
+			return err
+		}
+		defer src.Close()
+    fmt.Println(file.Filename)
+		dst, err := os.Create("./uploadedFiles/" + file.Filename)
+		if err != nil {
+			log.Println(err)
+			return err
+		}
+		fmt.Println(dst.Name())
+		defer dst.Close()
+		if _, err = io.Copy(dst, src); err != nil {
+			return err
 		}
 		return c.JSON(200, nil)
 	})

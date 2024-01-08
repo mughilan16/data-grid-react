@@ -7,24 +7,46 @@ import { Student } from "./service/api";
 import { Alert, Button, Snackbar } from "@mui/material";
 import { GridRowSelectionModel } from "@mui/x-data-grid";
 import { DeleteModal } from "./components/DeleteModal";
+import { AddCircle, DeleteRounded, UpdateRounded } from "@mui/icons-material";
 
-function App() {
+export default function App() {
   const [students, setStudents] = useState(new Array<Student>());
   const [addModal, setAddModal] = useState(false);
   const [updateModal, setUpdateModal] = useState(false);
   const [deleteModal, setDeleteModal] = useState(false);
 
   const [deleteMessageOpen, setDeleteMessageOpen] = useState(false);
-  const [addMessageOpen, setAddMessageOpen] = useState(false);
-  const [updateMessageOpen, setUpdateMessageOpen] = useState(false);
+  const [addMessageOpen, setAddMessageOpen] = useState<ErrorMessage>({
+    open: false,
+    message: "",
+    mode: "success",
+  });
+  type ErrorMessage = {
+    open: boolean;
+    mode: "success" | "info" | "error";
+    message: string;
+  };
+  const [updateMessageOpen, setUpdateMessageOpen] = useState<ErrorMessage>({
+    open: false,
+    message: "",
+    mode: "success",
+  });
   const handleDeleteMessageClose = () => {
     setDeleteMessageOpen(false);
   };
   const handleUpdateMessageClose = () => {
-    setUpdateMessageOpen(false);
+    setUpdateMessageOpen({
+      open: false,
+      message: "",
+      mode: "success",
+    });
   };
   const handleAddMessageClose = () => {
-    setAddMessageOpen(false);
+    setAddMessageOpen({
+      open: false,
+      message: "",
+      mode: "success",
+    });
   };
 
   const [selectedStudents, setSelectedStudents] =
@@ -67,27 +89,29 @@ function App() {
         <Box
           sx={{ display: "flex", flexDirection: "row-reverse", gap: "1rem" }}
         >
-          <Button onClick={() => setAddModal(true)} variant="contained">
+          <Button onClick={() => setAddModal(true)} variant="contained"
+            startIcon={<AddCircle />}
+          >
             Add Student
           </Button>
-          {selectedStudents.length !== 0 && (
-            <Button
-              onClick={() => setDeleteModal(true)}
-              variant="contained"
-              color="error"
-            >
-              Delete Student
-            </Button>
-          )}
-          {selectedStudents.length === 1 && (
-            <Button
-              onClick={() => setUpdateModal(true)}
-              variant="contained"
-              color="success"
-            >
-              Update Student
-            </Button>
-          )}
+          <Button
+            startIcon={<DeleteRounded />}
+            disabled={selectedStudents.length === 0}
+            onClick={() => setDeleteModal(true)}
+            variant="contained"
+            color="error"
+          >
+            Delete Student
+          </Button>
+          <Button
+            startIcon={<UpdateRounded />}
+            disabled={selectedStudents.length !== 1}
+            onClick={() => setUpdateModal(true)}
+            variant="contained"
+            color="success"
+          >
+            Update Student
+          </Button>
           <AddForm
             students={students}
             setStudents={setStudents}
@@ -96,6 +120,7 @@ function App() {
             setMessageOpen={setAddMessageOpen}
           />
           <UpdateForm
+            students={students}
             setStudents={setStudents}
             getSelectedStudents={getSelectedStudent}
             isOpen={updateModal}
@@ -127,21 +152,21 @@ function App() {
       </Snackbar>
 
       <Snackbar
-        open={addMessageOpen}
+        open={addMessageOpen.open}
         autoHideDuration={5000}
         onClose={handleAddMessageClose}
       >
         <Alert
           onClose={handleAddMessageClose}
-          severity="success"
+          severity={addMessageOpen.mode}
           sx={{ width: "100%" }}
         >
-          Successfully added new student details
+          {addMessageOpen.message}
         </Alert>
       </Snackbar>
 
       <Snackbar
-        open={updateMessageOpen}
+        open={updateMessageOpen.open}
         autoHideDuration={5000}
         onClose={handleUpdateMessageClose}
       >
@@ -150,11 +175,9 @@ function App() {
           severity="info"
           sx={{ width: "100%" }}
         >
-          Successfully updated the selected student details
+          {updateMessageOpen.message}
         </Alert>
       </Snackbar>
     </Box>
   );
 }
-
-export default App;

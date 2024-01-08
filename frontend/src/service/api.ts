@@ -39,3 +39,11 @@ export const updateStudent = async (updateItem: Student) => {
 export const deleteStudents = async (ids: string) => {
   return (await axiosInstance.post("/delete-students", {ids: ids}))
 }
+
+export const uploadFile = async (formData : FormData) => {
+  return (await axiosInstance.post('/upload-file', formData, {
+    headers: {
+      'Content-Type': 'multipart/form-data'
+    }
+  }))
+}
