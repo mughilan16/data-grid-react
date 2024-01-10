@@ -42,9 +42,8 @@ export function AddForm(props: {
         return [...prev, res];
       });
       uploadFile(formData).then(res => props.setStudents(prev => prev.map(student => {
-        console.log(student.id === res.id, res.id)
         if (student.id === res.id) {
-          return { ...student, fileName: res.filename }
+          return { ...student, fileName: res.fileName }
         }
         return student
       })));

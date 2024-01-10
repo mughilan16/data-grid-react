@@ -36,7 +36,7 @@ type getItemResponse = {
 }
 
 type FileNameResponse = {
-  filename: string,
+  fileName: string,
   id: number
 }
 

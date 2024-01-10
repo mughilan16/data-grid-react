@@ -42,7 +42,8 @@ export function UpdateForm(props: {
       uploadFile(formData).then(res => props.setStudents(prev =>
         prev.map(student => {
           if (res.id === student.id) {
-            const newStudent: Student = { ...student, fileName: res.filename }
+            const newStudent: Student = { ...student, fileName: res.fileName }
+            console.log(newStudent)
             return newStudent
           }
           return student;
@@ -128,7 +129,6 @@ export function UpdateForm(props: {
       return;
     }
     const selectStudent = props.getSelectedStudents();
-    console.log(selectStudent);
     if (selectStudent === undefined) {
       return;
     }

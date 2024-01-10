@@ -17,7 +17,6 @@ export default function Details(props: {
       return;
     }
     const selectStudent = props.getSelectedStudents();
-    console.log(selectStudent);
     if (selectStudent === undefined) {
       return;
     }
