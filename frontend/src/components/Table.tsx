@@ -17,6 +17,7 @@ export function Table(props: {
     { field: "grade", headerName: "Grade", width: 80 },
     { field: "place", headerName: "Value", width: 150 },
   ];
+  console.log(props.students)
   const { data, isLoading } = useGetItems();
   useEffect(() => {
     if (data?.items) props.setStudents(data?.items);

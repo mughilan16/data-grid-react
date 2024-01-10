@@ -9,6 +9,17 @@ export type Student = {
   age: number,
   grade: "S" | "A" | "B" | "C" | "D" | "E" | "F",
   place: string,
+  fileName:string
+}
+
+export type updateStudentRequest = {
+  id: number,
+  rrn: number,
+  name: string,
+  age: number,
+  grade: "S" | "A" | "B" | "C" | "D" | "E" | "F",
+  place: string,
+  file: FileList
 }
 
 export type addStudentRequest = {
@@ -17,10 +28,16 @@ export type addStudentRequest = {
   age: number,
   grade: "S" | "A" | "B" | "C" | "D" | "E" | "F",
   place: string,
+  file: FileList
 }
 
 type getItemResponse = {
   items : Array<Student>
+}
+
+type FileNameResponse = {
+  filename: string,
+  id: number
 }
 
 export const addStudent = async (newItem: addStudentRequest) => {
@@ -32,7 +49,7 @@ export const getStudents = async () => {
   return ((await axiosInstance.get<getItemResponse>("/get-students")).data)
 }
 
-export const updateStudent = async (updateItem: Student) => {
+export const updateStudent = async (updateItem: updateStudentRequest) => {
   return ((await axiosInstance.post<Student>("/update-student", updateItem)).data)
 }
 
@@ -41,9 +58,9 @@ export const deleteStudents = async (ids: string) => {
 }
 
 export const uploadFile = async (formData : FormData) => {
-  return (await axiosInstance.post('/upload-file', formData, {
+  return (await axiosInstance.post<FileNameResponse>('/upload-file', formData, {
     headers: {
       'Content-Type': 'multipart/form-data'
     }
-  }))
+  })).data
 }

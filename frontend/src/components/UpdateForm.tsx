@@ -8,8 +8,10 @@ import {
   TextField,
 } from "@mui/material";
 import { Controller, useForm } from "react-hook-form";
-import { Student, updateStudent } from "../service/api";
+import { Student, updateStudent, updateStudentRequest, uploadFile } from "../service/api";
 import { useEffect } from "react";
+import { CloudUpload } from "@mui/icons-material";
+import { VisuallyHiddenInput } from "./FileInput";
 
 export function UpdateForm(props: {
   setStudents: React.Dispatch<React.SetStateAction<Array<Student>>>;
@@ -25,13 +27,27 @@ export function UpdateForm(props: {
   >;
   students: Array<Student>;
 }) {
-  const { control, handleSubmit, reset, setValue } = useForm<Student>();
-  const onSubmitUpdate = (data: Student) => {
+  const { control, handleSubmit, reset, setValue } = useForm<updateStudentRequest>();
+  const onSubmitUpdate = (data: updateStudentRequest) => {
     data.age = parseInt(`${data.age}`);
     data.rrn = parseInt(`${data.rrn}`);
     const isValid = isUpdateDataValid(data);
     if (!isValid) {
       return;
+    }
+    if (data.file.length !== 0) {
+      const formData = new FormData();
+      formData.append("id", `${data.id}`)
+      formData.append("file", data.file[0])
+      uploadFile(formData).then(res => props.setStudents(prev =>
+        prev.map(student => {
+          if (res.id === student.id) {
+            const newStudent: Student = { ...student, fileName: res.filename }
+            return newStudent
+          }
+          return student;
+        })
+      ))
     }
     updateStudent(data).then((data) => {
       props.setStudents((prev) =>
@@ -55,7 +71,7 @@ export function UpdateForm(props: {
     props.setIsOpen(false);
     reset();
   };
-  function isUpdateDataValid(data: Student): boolean {
+  function isUpdateDataValid(data: updateStudentRequest): boolean {
     if (data.rrn === undefined || data.rrn === 0) {
       props.setMessageOpen({
         open: true,
@@ -279,6 +295,15 @@ export function UpdateForm(props: {
               );
             }}
           ></Controller>
+          <Button component="label" variant="contained" startIcon={<CloudUpload />} sx={{ padding: "0.7rem" }}>
+            Upload file
+            <VisuallyHiddenInput type="file" onChange={(event) => {
+              const files = event.currentTarget.files
+              if (files === null)
+                return
+              setValue("file", files)
+            }} />
+          </Button>
           <Button
             onClick={handleSubmit(onSubmitUpdate)}
             variant="contained"

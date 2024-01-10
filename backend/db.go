@@ -57,6 +57,32 @@ func AddStudentDB(studentDetails AddStudentRequest) (*Student, error) {
 	return newStudent, nil
 }
 
+func AddFileNameDB(id string, fileName string) (*FileName, error) {
+	db, err := connectDB()
+	if err != nil {
+		log.Println(err)
+		return nil, err
+	}
+	query := fmt.Sprintf("update student set filename='%s' where id=%s returning id, filename", fileName, id)
+  rows, err := db.Query(query)
+	if err != nil {
+		log.Panic(err)
+		return nil, err
+	}
+	filename := new(FileName)
+  if rows.Next() {
+		err := rows.Scan(&filename.ID, &filename.FileName)
+		if err != nil {
+			log.Println(err)
+			return nil, err
+		}
+	} else {
+    return nil, err
+  }
+	defer db.Close()
+	return filename, nil
+}
+
 func GetStudents() ([]Student, error) {
 	var students []Student
 	db, err := connectDB()
@@ -65,7 +91,7 @@ func GetStudents() ([]Student, error) {
 		return nil, err
 	}
 	defer db.Close()
-	query := "select id, rrn, name, age, grade, place from student"
+	query := "select id, rrn, name, age, grade, place, filename from student"
 	rows, err := db.Query(query)
 	if err != nil {
 		log.Println(err)
@@ -73,7 +99,7 @@ func GetStudents() ([]Student, error) {
 	}
 	for rows.Next() {
 		student := new(Student)
-		err := rows.Scan(&student.ID, &student.RRN, &student.Name, &student.Age, &student.Grade, &student.Place)
+		err := rows.Scan(&student.ID, &student.RRN, &student.Name, &student.Age, &student.Grade, &student.Place, &student.FileName)
 		if err != nil {
 			log.Println(err)
 			return nil, err

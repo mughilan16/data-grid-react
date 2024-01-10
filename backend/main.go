@@ -1,6 +1,7 @@
 package main
 
 import (
+	"backend/util"
 	"fmt"
 	"io"
 	"log"
@@ -12,12 +13,13 @@ import (
 )
 
 type Student struct {
-	ID    int    `json:"id"`
-	RRN   int    `json:"rrn"`
-	Name  string `json:"name"`
-	Age   int    `json:"age"`
-	Grade string `json:"grade"`
-	Place string `json:"place"`
+	ID       int    `json:"id"`
+	RRN      int    `json:"rrn"`
+	Name     string `json:"name"`
+	Age      int    `json:"age"`
+	Grade    string `json:"grade"`
+	Place    string `json:"place"`
+	FileName string `json:"fileName"`
 }
 
 type AddStudentRequest struct {
@@ -45,6 +47,11 @@ type ErrorMessage struct {
 	Message string `json:"message"`
 }
 
+type FileName struct {
+	ID       int    `json:"id"`
+	FileName string `json:"fileName"`
+}
+
 func main() {
 	e := echo.New()
 	e.Use(middleware.CORSWithConfig(middleware.CORSConfig{
@@ -55,6 +62,8 @@ func main() {
 	e.GET("/", func(c echo.Context) error {
 		return c.String(http.StatusOK, "Hello, World")
 	})
+
+	e.Use(middleware.Static("./uploadedFiles/"))
 
 	e.POST("/add-student", func(c echo.Context) error {
 		var request AddStudentRequest
@@ -109,6 +118,7 @@ func main() {
 	})
 	e.POST("/upload-file", func(c echo.Context) error {
 		file, err := c.FormFile("file")
+		id := c.FormValue("id")
 		if err != nil {
 			log.Println(err)
 			return err
@@ -119,8 +129,14 @@ func main() {
 			return err
 		}
 		defer src.Close()
-    fmt.Println(file.Filename)
-		dst, err := os.Create("./uploadedFiles/" + file.Filename)
+		fmt.Println(file.Filename)
+		fileExtension, err := util.GetFileExtension(file.Filename)
+		if err != nil {
+			log.Println(err)
+			return err
+		}
+		fileName := id + "." + fileExtension
+		dst, err := os.Create("./uploadedFiles/" + fileName)
 		if err != nil {
 			log.Println(err)
 			return err
@@ -130,7 +146,11 @@ func main() {
 		if _, err = io.Copy(dst, src); err != nil {
 			return err
 		}
-		return c.JSON(200, nil)
+		res, err := AddFileNameDB(id, fileName)
+		if err != nil {
+			return err
+		}
+		return c.JSON(200, res)
 	})
 	e.Logger.Fatal(e.Start(":3001"))
 }

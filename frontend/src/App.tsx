@@ -7,13 +7,15 @@ import { Student } from "./service/api";
 import { Alert, Button, Snackbar } from "@mui/material";
 import { GridRowSelectionModel } from "@mui/x-data-grid";
 import { DeleteModal } from "./components/DeleteModal";
-import { AddCircle, DeleteRounded, UpdateRounded } from "@mui/icons-material";
+import { AddCircle, DeleteRounded, DetailsRounded, UpdateRounded } from "@mui/icons-material";
+import Details from "./components/Details";
 
 export default function App() {
   const [students, setStudents] = useState(new Array<Student>());
   const [addModal, setAddModal] = useState(false);
   const [updateModal, setUpdateModal] = useState(false);
   const [deleteModal, setDeleteModal] = useState(false);
+  const [detailsModal, setDetailsModal] = useState(false);
 
   const [deleteMessageOpen, setDeleteMessageOpen] = useState(false);
   const [addMessageOpen, setAddMessageOpen] = useState<ErrorMessage>({
@@ -112,6 +114,15 @@ export default function App() {
           >
             Update Student
           </Button>
+          <Button
+            startIcon={<DetailsRounded />}
+            disabled={selectedStudents.length !== 1}
+            onClick={() => setDetailsModal(true)}
+            variant="contained"
+            color="info"
+          >
+          Details
+          </Button>
           <AddForm
             students={students}
             setStudents={setStudents}
@@ -135,6 +146,11 @@ export default function App() {
             setStudents={setStudents}
             setMessageOpen={setDeleteMessageOpen}
           ></DeleteModal>
+          <Details
+            getSelectedStudents={getSelectedStudent}
+            isOpen={detailsModal}
+            setIsOpen={setDetailsModal}
+          />
         </Box>
       </Box>
       <Snackbar

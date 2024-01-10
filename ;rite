@@ -8,13 +8,14 @@ import {
   TextField,
 } from "@mui/material";
 import { Controller, useForm } from "react-hook-form";
-import { Student, addStudent, addStudentRequest, uploadFile } from "../service/api";
-import React from "react";
-import { VisuallyHiddenInput } from "./FileInput";
+import { Student, updateStudent } from "../service/api";
+import { useEffect } from "react";
 import { CloudUpload } from "@mui/icons-material";
+import { VisuallyHiddenInput } from "./FileInput";
 
-export function AddForm(props: {
+export function UpdateForm(props: {
   setStudents: React.Dispatch<React.SetStateAction<Array<Student>>>;
+  getSelectedStudents: () => Student | undefined;
   isOpen: boolean;
   setIsOpen: React.Dispatch<React.SetStateAction<boolean>>;
   setMessageOpen: React.Dispatch<
@@ -26,42 +27,37 @@ export function AddForm(props: {
   >;
   students: Array<Student>;
 }) {
-  const { control, handleSubmit, reset, setValue } = useForm<addStudentRequest>();
-  const onSubmitAdd = (data: addStudentRequest) => {
+  const { control, handleSubmit, reset, setValue } = useForm<Student>();
+  const onSubmitUpdate = (data: Student) => {
     data.age = parseInt(`${data.age}`);
     data.rrn = parseInt(`${data.rrn}`);
-    const isValid = isAddDataValid(data);
+    const isValid = isUpdateDataValid(data);
     if (!isValid) {
       return;
     }
-    addStudent(data).then((res) => {
-      var formData = new FormData();
-      formData.append("id", `${res.id}`)
-      formData.append("file", data.file[0]);
-      props.setStudents((prev) => {
-        return [...prev, res];
-      });
-      uploadFile(formData).then(res => props.setStudents(prev => prev.map(student => {
-        console.log(student.id === res.id, res.id)
-        if (student.id === res.id) {
-          return { ...student, fileName: res.filename }
-        }
-        return student
-      })));
+    updateStudent(data).then((data) => {
+      props.setStudents((prev) =>
+        prev.map((item) => {
+          if (data.id === item.id) {
+            return data;
+          }
+          return item;
+        })
+      );
     });
     reset();
     props.setIsOpen(false);
     props.setMessageOpen({
-      open: true,
-      message: "Successfully added new student details",
+      message: "Successfully updated student details",
       mode: "success",
+      open: true,
     });
   };
   const onClose = () => {
     props.setIsOpen(false);
     reset();
   };
-  function isAddDataValid(data: addStudentRequest): boolean {
+  function isUpdateDataValid(data: Student): boolean {
     if (data.rrn === undefined || data.rrn === 0) {
       props.setMessageOpen({
         open: true,
@@ -77,14 +73,6 @@ export function AddForm(props: {
         mode: "error",
       });
       return false;
-    }
-    if (data.file === null || data.file.length === 0) {
-      props.setMessageOpen({
-        open: true,
-        message: "Missing File",
-        mode: "error"
-      })
-      return false
     }
     if (data.age === undefined || data.age === 0) {
       props.setMessageOpen({
@@ -106,8 +94,12 @@ export function AddForm(props: {
       });
       return false;
     }
-
-    if (props.students.map((student) => student.rrn).includes(data.rrn)) {
+    if (
+      props.students
+        .filter((student) => student.id !== data.id)
+        .map((student) => student.rrn)
+        .includes(data.rrn)
+    ) {
       props.setMessageOpen({
         open: true,
         message: "Student RRN already exists",
@@ -117,6 +109,23 @@ export function AddForm(props: {
     }
     return true;
   }
+  useEffect(() => {
+    if (props.isOpen === false) {
+      return;
+    }
+    const selectStudent = props.getSelectedStudents();
+    console.log(selectStudent);
+    if (selectStudent === undefined) {
+      return;
+    }
+    setValue("id", selectStudent.id);
+    setValue("rrn", selectStudent.rrn);
+    setValue("name", selectStudent.name);
+    setValue("age", selectStudent.age);
+    setValue("grade", selectStudent.grade);
+    setValue("place", selectStudent.place);
+  }, [props.isOpen, props.getSelectedStudents]);
+
   return (
     <Modal
       open={props.isOpen}
@@ -142,9 +151,30 @@ export function AddForm(props: {
         }}
       >
         <FormLabel sx={{ fontSize: 25, padding: "10px", textAlign: "center" }}>
-          Add New Student
+          Update Student
         </FormLabel>
+
         <Box sx={{ display: "flex", flexDirection: "column", gap: "0.6rem" }}>
+          <Controller
+            name="id"
+            control={control}
+            rules={{ required: true }}
+            render={({ field, formState }) => {
+              const { onChange, value } = field;
+              const { errors } = formState;
+              return (
+                <TextField
+                  variant="outlined"
+                  onChange={onChange}
+                  value={value ? value : ""}
+                  disabled={true}
+                  label="ID"
+                  error={!!errors.id}
+                ></TextField>
+              );
+            }}
+          ></Controller>
+
           <Controller
             name="rrn"
             control={control}
@@ -153,21 +183,18 @@ export function AddForm(props: {
               const { onChange, value } = field;
               const { errors } = formState;
               return (
-                <>
-                  <TextField
-                    type="number"
-                    variant="outlined"
-                    onChange={onChange}
-                    value={value ? value : ""}
-                    label="RRN"
-                    error={!!errors.rrn}
-                    helperText={errors.rrn && `${errors.rrn.message}`}
-                  ></TextField>
-                </>
+                <TextField
+                  type="number"
+                  variant="outlined"
+                  onChange={onChange}
+                  value={value ? value : ""}
+                  label="RRN"
+                  error={!!errors.rrn}
+                  helperText={errors.rrn && `${errors.rrn.message}`}
+                ></TextField>
               );
             }}
           ></Controller>
-
           <Controller
             name="name"
             control={control}
@@ -187,7 +214,6 @@ export function AddForm(props: {
               );
             }}
           ></Controller>
-
           <Controller
             name="age"
             control={control}
@@ -208,6 +234,7 @@ export function AddForm(props: {
               );
             }}
           ></Controller>
+
           <Controller
             name="grade"
             control={control}
@@ -217,10 +244,10 @@ export function AddForm(props: {
               const { errors } = formState;
               return (
                 <Autocomplete
-                  value={value ? value : ""}
                   onChange={(_, newValue) => {
                     onChange(newValue);
                   }}
+                  value={value ? value : ""}
                   options={["S", "A", "B", "C", "D", "E", "F"]}
                   renderInput={(params) => (
                     <TextField
@@ -234,6 +261,7 @@ export function AddForm(props: {
               );
             }}
           ></Controller>
+
           <Controller
             name="place"
             control={control}
@@ -262,13 +290,12 @@ export function AddForm(props: {
               setValue("file", files)
             }} />
           </Button>
-
           <Button
-            onClick={handleSubmit(onSubmitAdd)}
-            sx={{ padding: "0.7rem" }}
+            onClick={handleSubmit(onSubmitUpdate)}
             variant="contained"
+            sx={{ padding: "0.7rem" }}
           >
-            ADD
+            UPDATE
           </Button>
           <Button
             onClick={() => props.setIsOpen(false)}

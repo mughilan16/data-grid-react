@@ -1,16 +1,16 @@
 import React from "react";
 import ReactDOM from "react-dom/client";
-import App from "./App.tsx";
-import "./index.css";
+//import "./index.css";
 import { QueryClient, QueryClientProvider } from "react-query";
 import { ThemeProvider } from "styled-components";
-import { CssBaseline, createTheme } from "@mui/material";
-import FileUpload from "./FileUpload.tsx";
+import CssBaseline from "@mui/material/CssBaseline";
+import { createTheme } from "@mui/material";
+import App from "./App.tsx";
 
 const client = new QueryClient();
 const darkTheme = createTheme({
   palette: {
-    mode: "light",
+    mode: "dark",
   },
 });
 
@@ -19,7 +19,7 @@ ReactDOM.createRoot(document.getElementById("root")!).render(
     <QueryClientProvider client={client}>
       <ThemeProvider theme={darkTheme}>
         <CssBaseline />
-        <FileUpload />
+        <App />
       </ThemeProvider>
     </QueryClientProvider>
   </React.StrictMode>
