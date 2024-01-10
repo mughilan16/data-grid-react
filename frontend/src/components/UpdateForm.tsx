@@ -35,30 +35,31 @@ export function UpdateForm(props: {
     if (!isValid) {
       return;
     }
-    if (data.file.length !== 0) {
-      const formData = new FormData();
-      formData.append("id", `${data.id}`)
-      formData.append("file", data.file[0])
-      uploadFile(formData).then(res => props.setStudents(prev =>
-        prev.map(student => {
-          if (res.id === student.id) {
-            const newStudent: Student = { ...student, fileName: res.fileName }
-            console.log(newStudent)
-            return newStudent
-          }
-          return student;
-        })
-      ))
-    }
-    updateStudent(data).then((data) => {
+    updateStudent(data).then((res) => {
       props.setStudents((prev) =>
         prev.map((item) => {
-          if (data.id === item.id) {
-            return data;
+          if (res.id === item.id) {
+            return res;
           }
           return item;
         })
       );
+      if (data.file.length !== 0) {
+        const formData = new FormData();
+        formData.append("id", `${data.id}`)
+        formData.append("file", data.file[0])
+        uploadFile(formData).then(res => props.setStudents(prev =>
+          prev.map(student => {
+            if (res.id === student.id) {
+              console.log(res.fileName)
+              const newStudent: Student = { ...student, fileName: res.fileName }
+              console.log(newStudent)
+              return newStudent
+            }
+            return student;
+          })
+        ))
+      }
     });
     reset();
     props.setIsOpen(false);

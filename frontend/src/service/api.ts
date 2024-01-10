@@ -41,7 +41,6 @@ type FileNameResponse = {
 }
 
 export const addStudent = async (newItem: addStudentRequest) => {
-  console.log(newItem)
   return ((await axiosInstance.post<Student>("/add-student", newItem)).data)
 }
 
