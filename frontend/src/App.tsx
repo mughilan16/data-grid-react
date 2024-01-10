@@ -53,15 +53,6 @@ export default function App() {
 
   const [selectedStudents, setSelectedStudents] =
     useState<GridRowSelectionModel>([]);
-  function getSelectedStudent() {
-    let student;
-    students.forEach((s) => {
-      if (s.id === selectedStudents[0]) {
-        student = s;
-      }
-    });
-    return student;
-  }
   return (
     <Box
       sx={{
@@ -132,8 +123,8 @@ export default function App() {
           />
           <UpdateForm
             students={students}
+            student={students.filter(s => s.id === selectedStudents[0])[0]}
             setStudents={setStudents}
-            getSelectedStudents={getSelectedStudent}
             isOpen={updateModal}
             setIsOpen={setUpdateModal}
             setMessageOpen={setUpdateMessageOpen}
@@ -147,9 +138,9 @@ export default function App() {
             setMessageOpen={setDeleteMessageOpen}
           ></DeleteModal>
           <Details
-            getSelectedStudents={getSelectedStudent}
             isOpen={detailsModal}
             setIsOpen={setDetailsModal}
+            student={students.filter(s => s.id === selectedStudents[0])[0]}
           />
         </Box>
       </Box>

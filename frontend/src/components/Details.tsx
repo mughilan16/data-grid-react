@@ -1,27 +1,15 @@
 import { Box, Modal } from "@mui/material";
 import { Student } from "../service/api";
-import { useEffect, useState } from "react";
 
 export default function Details(props: {
-  getSelectedStudents: () => Student | undefined;
   isOpen: boolean;
   setIsOpen: React.Dispatch<React.SetStateAction<boolean>>;
+  student: Student
 }) {
   const URL = "http://localhost:3001"
-  const [student, setStudent] = useState<Student | undefined>(undefined);
   const onClose = () => {
     props.setIsOpen(false);
   };
-  useEffect(() => {
-    if (props.isOpen === false) {
-      return;
-    }
-    const selectStudent = props.getSelectedStudents();
-    if (selectStudent === undefined) {
-      return;
-    }
-    setStudent(selectStudent)
-  }, [props.isOpen, props.getSelectedStudents]);
   return (
     <Modal
       open={props.isOpen}
@@ -47,16 +35,16 @@ export default function Details(props: {
         }}
       >
         {
-          student !== undefined &&
+          props.student !== undefined &&
           <Box sx={{ fontSize: "1.2rem" }}>
-            <img src={`${URL}/${student.fileName}`} width="100%"></img>
+            <img src={`${URL}/${props.student.fileName}`} width="100%"></img>
             <Box sx={{p: "1rem"}}>
-              <Box>ID: {student?.id}</Box>
-              <Box>RRN: {student?.rrn}</Box>
-              <Box>NAME: {student?.name}</Box>
-              <Box>AGE: {student?.age}</Box>
-              <Box>GRADE: {student?.grade}</Box>
-              <Box>PLACE: {student?.place}</Box>
+              <Box>ID: {props.student?.id}</Box>
+              <Box>RRN: {props.student?.rrn}</Box>
+              <Box>NAME: {props.student?.name}</Box>
+              <Box>AGE: {props.student?.age}</Box>
+              <Box>GRADE: {props.student?.grade}</Box>
+              <Box>PLACE: {props.student?.place}</Box>
             </Box>
           </Box>
         }

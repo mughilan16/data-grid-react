@@ -15,7 +15,7 @@ import { VisuallyHiddenInput } from "./FileInput";
 
 export function UpdateForm(props: {
   setStudents: React.Dispatch<React.SetStateAction<Array<Student>>>;
-  getSelectedStudents: () => Student | undefined;
+  student: Student
   isOpen: boolean;
   setIsOpen: React.Dispatch<React.SetStateAction<boolean>>;
   setMessageOpen: React.Dispatch<
@@ -51,10 +51,7 @@ export function UpdateForm(props: {
         uploadFile(formData).then(res => props.setStudents(prev =>
           prev.map(student => {
             if (res.id === student.id) {
-              console.log(res.fileName)
-              const newStudent: Student = { ...student, fileName: res.fileName }
-              console.log(newStudent)
-              return newStudent
+              return { ...student, fileName: res.fileName }
             }
             return student;
           })
@@ -129,17 +126,13 @@ export function UpdateForm(props: {
     if (props.isOpen === false) {
       return;
     }
-    const selectStudent = props.getSelectedStudents();
-    if (selectStudent === undefined) {
-      return;
-    }
-    setValue("id", selectStudent.id);
-    setValue("rrn", selectStudent.rrn);
-    setValue("name", selectStudent.name);
-    setValue("age", selectStudent.age);
-    setValue("grade", selectStudent.grade);
-    setValue("place", selectStudent.place);
-  }, [props.isOpen, props.getSelectedStudents]);
+    setValue("id", props.student.id);
+    setValue("rrn", props.student.rrn);
+    setValue("name", props.student.name);
+    setValue("age", props.student.age);
+    setValue("grade", props.student.grade);
+    setValue("place", props.student.place);
+  }, [props.isOpen, props.student]);
 
   return (
     <Modal

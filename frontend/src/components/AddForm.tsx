@@ -57,8 +57,8 @@ export function AddForm(props: {
     });
   };
   const onClose = () => {
-    props.setIsOpen(false);
     reset();
+    props.setIsOpen(false);
   };
   function isAddDataValid(data: addStudentRequest): boolean {
     if (data.rrn === undefined || data.rrn === 0) {
@@ -77,13 +77,32 @@ export function AddForm(props: {
       });
       return false;
     }
-    if (data.file === null || data.file.length === 0) {
+    if (data.file === undefined || data.file.length === 0) {
       props.setMessageOpen({
         open: true,
-        message: "Missing File",
+        message: "Missing Image",
         mode: "error"
       })
       return false
+    } else {
+      try {
+        const fileExtension = data.file[0].name.split(".")[1]
+        if (!["jpeg", "jpg", "png"].includes(fileExtension)) {
+          props.setMessageOpen({
+            open: true,
+            message: "Invalid File Format",
+            mode: "error"
+          })
+          return false
+        }
+      } catch (e) {
+        props.setMessageOpen({
+          open: true,
+          message: "Invalid File Format",
+          mode: "error"
+        })
+        return false
+      }
     }
     if (data.age === undefined || data.age === 0) {
       props.setMessageOpen({
