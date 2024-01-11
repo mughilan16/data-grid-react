@@ -12,66 +12,70 @@ import { updateStudent, updateStudentRequest, uploadFile } from "../service/api"
 import { useEffect } from "react";
 import { CloudUpload } from "@mui/icons-material";
 import { VisuallyHiddenInput } from "./FileInput";
-import { useDispatch, useSelector } from "react-redux";
-import { RootState } from "../state/store";
-import { update, updateFile } from "../state/students/studentsSlice";
-import { close } from "../state/modal/modalSlice";
-import { show } from "../state/message/messageSlice";
+import useStudentStore from "../state/studentsStore";
+import useModalStore from "../state/modalStore";
+import useMessageStore from "../state/messageStore";
+import useSelectedStore from "../state/selectedStore";
 
 export function UpdateForm() {
   const { control, handleSubmit, reset, setValue } = useForm<updateStudentRequest>();
-  const students = useSelector((state: RootState) => state.students.value)
-  const selected = useSelector((state: RootState) => state.selected.value)
-  const modal = useSelector((state: RootState) => state.modal.value)
-  const dispatch = useDispatch()
+  const modal = useModalStore(state => state.value)
+  const students = useStudentStore(state => state.value)
+  const selected = useSelectedStore(state => state.value)
+
+  const updateStudentStore = useStudentStore(state => state.updateStudent)
+  const addFileStore = useStudentStore(state => state.addFile)
+  const closeModal = useModalStore(state => state.close)
+  const showMessage = useMessageStore(state => state.show)
+
   function isUpdateDataValid(data: updateStudentRequest): boolean {
     if (data.rrn === undefined || data.rrn === 0) {
-      dispatch(show({
+      showMessage({
         text: "Missing Field RRN",
         mode: "success",
-      }))
+      })
       return false;
     }
     if (data.name === undefined || data.name === "") {
-      dispatch(show({
+      showMessage({
         text: "Missing Field Name",
         mode: "success",
-      }))
+      })
       return false;
     }
     if (data.file !== undefined && data.file.length > 0) {
       try {
         const fileExtension = data.file[0].name.split(".")[1]
         if (!["jpeg", "jpg", "png"].includes(fileExtension)) {
-          dispatch(show({
+          showMessage({
             text: "Invalid File Format",
             mode: "success",
-          }))
+          })
           return false
         }
       } catch (e) {
-        dispatch(show({
+        showMessage({
           text: "Invalid File Format",
           mode: "success",
-        }))
+        })
         return false
       }
     }
     if (data.age === undefined || data.age === 0) {
-      dispatch(show({
+      showMessage({
         text: "Missing Field Age",
         mode: "success",
-      }))
+      })
       return false;
     }
     if (
       data.grade === undefined ||
       !["S", "A", "B", "C", "D", "E", "F"].includes(data.grade)
     ) {
-      dispatch(show({
+      showMessage({
         text: "Invalid Grade Field Value",
         mode: "success",
-      }))
+      })
       return false;
     }
 
@@ -80,10 +84,10 @@ export function UpdateForm() {
       .map((student) => student.rrn)
       .includes(data.rrn)
     ) {
-      dispatch(show({
+      showMessage({
         text: "Student RRN already exists",
         mode: "error",
-      }));
+      })
       return false;
     }
     return true;
@@ -97,24 +101,27 @@ const onSubmitUpdate = (data: updateStudentRequest) => {
     return;
   }
   updateStudent(data).then((res) => {
-    dispatch(update(res))
+    updateStudentStore(res)
     if (data.file !== undefined && data.file.length !== 0) {
       const formData = new FormData();
       formData.append("id", `${data.id}`)
       formData.append("file", data.file[0])
-      uploadFile(formData).then(res => dispatch(updateFile(res)))
+      uploadFile(formData).then(res => addFileStore(res))
     }
   });
   reset();
-  dispatch(close())
-  dispatch(show({
+  closeModal()
+  showMessage({
     text: "Successfully added new student details",
     mode: "success",
-  }))
+  })
 };
 
 useEffect(() => {
   const student = students.filter(s => s.id === selected[0])[0]
+  if (student === undefined) {
+    return;
+  }
   if (!modal.show) {
     return;
   }
@@ -130,7 +137,7 @@ return (
   <Modal
     open={modal.show && modal.type === "update"}
     onClose={() => {
-      dispatch(close())
+      closeModal()
       reset();
     }
     }
@@ -302,7 +309,7 @@ return (
           UPDATE
         </Button>
         <Button
-          onClick={() => dispatch(close())}
+          onClick={() => closeModal()}
           color="error"
           sx={{ padding: "0.7rem" }}
           variant="outlined"

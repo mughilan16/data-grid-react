@@ -11,17 +11,19 @@ import { Controller, useForm } from "react-hook-form";
 import { addStudent, addStudentRequest, uploadFile } from "../service/api";
 import { VisuallyHiddenInput } from "./FileInput";
 import { CloudUpload } from "@mui/icons-material";
-import { useDispatch, useSelector } from "react-redux";
-import { add, updateFile } from "../state/students/studentsSlice";
-import { RootState } from "../state/store";
-import { close } from "../state/modal/modalSlice";
-import { show } from "../state/message/messageSlice";
+import useModalStore from "../state/modalStore";
+import useStudentStore from "../state/studentsStore";
+import useMessageStore from "../state/messageStore";
 
 export function AddForm() {
   const { control, handleSubmit, reset, setValue } = useForm<addStudentRequest>();
-  const modal = useSelector((state: RootState) => state.modal.value)
-  const students = useSelector((state: RootState) => state.students.value)
-  const dispatch = useDispatch()
+  const modal = useModalStore(state => state.value)
+  const students = useStudentStore(state => state.value)
+  const addNewStudent = useStudentStore(state => state.addStudent)
+  const addFile = useStudentStore(state => state.addFile)
+  const closeModal = useModalStore(state => state.close)
+  const showMessage = useMessageStore(state => state.show)
+
   const onSubmitAdd = (data: addStudentRequest) => {
     data.age = parseInt(`${data.age}`);
     data.rrn = parseInt(`${data.rrn}`);
@@ -33,82 +35,82 @@ export function AddForm() {
       var formData = new FormData();
       formData.append("id", `${res.id}`)
       formData.append("file", data.file[0]);
-      dispatch(add(res))
-      uploadFile(formData).then(res => dispatch(updateFile(res)));
+      addNewStudent(res)
+      uploadFile(formData).then(res => addFile(res));
     });
     reset();
-    dispatch(close())
-    dispatch(show({
+    closeModal()
+    showMessage({
       text: "Successfully added new student details",
       mode: "success",
-    }))
+    })
   };
   const onClose = () => {
     reset();
-    dispatch(close())
+    closeModal()
   };
   function isAddDataValid(data: addStudentRequest): boolean {
     if (data.rrn === undefined || data.rrn === 0) {
-      dispatch(show({
+      showMessage({
         text: "Missing Field RRN",
         mode: "success",
-      }))
+      })
       return false;
     }
     if (data.name === undefined || data.name === "") {
-      dispatch(show({
+      showMessage({
         text: "Missing Field Name",
         mode: "success",
-      }))
+      })
       return false;
     }
     if (data.file === undefined || data.file.length === 0) {
-      dispatch(show({
+      showMessage({
         text: "Missing Field File",
         mode: "success",
-      }))
+      })
       return false;
     } else {
       try {
         const fileExtension = data.file[0].name.split(".")[1]
         if (!["jpeg", "jpg", "png"].includes(fileExtension)) {
-          dispatch(show({
+          showMessage({
             text: "Invalid File Format",
             mode: "success",
-          }))
+          })
           return false
         }
       } catch (e) {
-        dispatch(show({
+        showMessage({
           text: "Invalid File Format",
           mode: "success",
-        }))
+        })
         return false
       }
     }
     if (data.age === undefined || data.age === 0) {
-      dispatch(show({
+      showMessage({
         text: "Missing Field Age",
         mode: "success",
-      }))
+      })
       return false;
     }
     if (
       data.grade === undefined ||
       !["S", "A", "B", "C", "D", "E", "F"].includes(data.grade)
     ) {
-      dispatch(show({
+      showMessage({
         text: "Invalid Grade Field Value",
         mode: "success",
-      }))
-      return false;
+      })
+      return false
     }
 
     if (students.map((student) => student.rrn).includes(data.rrn)) {
-      dispatch(show({
+      showMessage({
         text: "Student RRN already exists",
         mode: "success",
-      }))
+      })
       return false;
     }
     return true;
@@ -267,7 +269,7 @@ export function AddForm() {
             ADD
           </Button>
           <Button
-            onClick={() => dispatch(close())}
+            onClick={() => closeModal()}
             color="error"
             sx={{ padding: "0.7rem" }}
             variant="outlined"

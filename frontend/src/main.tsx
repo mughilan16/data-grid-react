@@ -5,8 +5,6 @@ import { ThemeProvider } from "styled-components";
 import CssBaseline from "@mui/material/CssBaseline";
 import { createTheme } from "@mui/material";
 import App from "./App.tsx";
-import { Provider } from "react-redux";
-import { store } from "./state/store.ts";
 
 const client = new QueryClient();
 const darkTheme = createTheme({
@@ -17,13 +15,11 @@ const darkTheme = createTheme({
 
 ReactDOM.createRoot(document.getElementById("root")!).render(
   <React.StrictMode>
-  <Provider store={store}>
     <QueryClientProvider client={client}>
       <ThemeProvider theme={darkTheme}>
         <CssBaseline />
         <App />
       </ThemeProvider>
     </QueryClientProvider>
-    </Provider> 
   </React.StrictMode>
 );

@@ -1,17 +1,19 @@
 import { Box, Modal } from "@mui/material";
-import { useDispatch, useSelector } from "react-redux";
-import { RootState } from "../state/store";
-import { close } from "../state/modal/modalSlice";
+import useModalStore from "../state/modalStore";
+import useStudentStore from "../state/studentsStore";
+import useSelectedStore from "../state/selectedStore";
 
 export default function Details() {
   const URL = "http://localhost:3001"
-  const dispatch = useDispatch()
-  const students = useSelector((state: RootState)=> state.students.value)
-  const selected = useSelector((state: RootState) => state.selected.value)
-  const modal = useSelector((state: RootState) => state.modal.value)
+  const modal = useModalStore(state => state.value)
+  const students = useStudentStore(state => state.value)
+  const selected = useSelectedStore(state => state.value)
   const student = students.filter(s => s.id === selected[0])[0]
+
+  const closeModal = useModalStore(state => state.close)
+
   const onClose = () => {
-    dispatch(close())
+    closeModal()
   };
   return (
     <Modal

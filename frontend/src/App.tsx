@@ -6,15 +6,15 @@ import { Alert, Button, Snackbar } from "@mui/material";
 import { DeleteModal } from "./components/DeleteModal";
 import { AddCircle, DeleteRounded, DetailsRounded, UpdateRounded } from "@mui/icons-material";
 import Details from "./components/Details";
-import { useDispatch, useSelector } from "react-redux";
-import { RootState } from "./state/store";
-import { open } from "./state/modal/modalSlice";
-import { hide } from "./state/message/messageSlice";
+import useModalStore from "./state/modalStore";
+import useSelectedStore from "./state/selectedStore";
+import useMessageStore from "./state/messageStore";
 
 export default function App() {
-  const dispatch = useDispatch()
-  const selected = useSelector((state: RootState) => state.selected.value)
-  const message = useSelector((state: RootState) => state.message.value)
+  const openModal = useModalStore(state => state.open)
+  const selected = useSelectedStore(state => state.value)
+  const message = useMessageStore(state => state.value)
+  const hideMesssage = useMessageStore(state => state.hide)
   return (
     <Box
       sx={{
@@ -39,7 +39,7 @@ export default function App() {
         <Box
           sx={{ display: "flex", flexDirection: "row-reverse", gap: "1rem" }}
         >
-          <Button onClick={() => dispatch(open({ show: true, type: "add" }))} variant="contained"
+          <Button onClick={() => openModal("add")} variant="contained"
             startIcon={<AddCircle />}
           >
             Add Student
@@ -47,7 +47,7 @@ export default function App() {
           <Button
             startIcon={<DeleteRounded />}
             disabled={selected.length === 0}
-            onClick={() => dispatch(open({ show: true, type: "delete" }))}
+            onClick={() => openModal("delete")}
             variant="contained"
             color="error"
           >
@@ -56,7 +56,7 @@ export default function App() {
           <Button
             startIcon={<UpdateRounded />}
             disabled={selected.length !== 1}
-            onClick={() => dispatch(open({ show: true, type: "update" }))}
+            onClick={() => openModal("update")}
             variant="contained"
             color="success"
           >
@@ -65,7 +65,7 @@ export default function App() {
           <Button
             startIcon={<DetailsRounded />}
             disabled={selected.length !== 1}
-            onClick={() => dispatch(open({ show: true, type: "detail" }))}
+            onClick={() => openModal("detail")}
             variant="contained"
             color="info"
           >
@@ -73,18 +73,17 @@ export default function App() {
           </Button>
           <AddForm />
           <UpdateForm />
-          <DeleteModal ></DeleteModal>
-          <Details
-          />
+          <DeleteModal />
+          <Details />
         </Box>
       </Box>
       <Snackbar
         open={message.show}
         autoHideDuration={5000}
-        onClose={() => dispatch(hide())}
+        onClose={() => hideMesssage()}
       >
         <Alert
-          onClose={() => dispatch(hide())}
+          onClose={() => hideMesssage()}
           severity="error"
           sx={{ width: "100%" }}
         >

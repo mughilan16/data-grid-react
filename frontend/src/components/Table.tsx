@@ -1,10 +1,8 @@
-import { DataGrid, GridColDef} from "@mui/x-data-grid";
+import { DataGrid, GridColDef } from "@mui/x-data-grid";
 import { useGetItems } from "../service/queries";
 import { useEffect } from "react";
-import { RootState } from "../state/store";
-import { useDispatch, useSelector } from "react-redux";
-import { set } from "../state/students/studentsSlice";
-import { setSelected } from "../state/selected/selectedSlice";
+import useStudentStore from "../state/studentsStore";
+import useSelectedStore from "../state/selectedStore";
 
 export function Table() {
   const columns: GridColDef[] = [
@@ -15,11 +13,13 @@ export function Table() {
     { field: "grade", headerName: "Grade", width: 80 },
     { field: "place", headerName: "Value", width: 150 },
   ];
-  const students = useSelector((state: RootState) => state.students.value)
-  const dispatch = useDispatch();
+  const students = useStudentStore((state) => state.value)
+  const setStudent = useStudentStore(state => state.setStudents)
+  const setSelected = useSelectedStore(state => state.setSelected)
+
   const { data, isLoading } = useGetItems();
   useEffect(() => {
-    if (data?.items) dispatch(set(data.items))
+    if (data?.items) setStudent(data.items)
   }, [data]);
 
   return (
@@ -31,7 +31,7 @@ export function Table() {
         checkboxSelection
         disableRowSelectionOnClick
         onRowSelectionModelChange={(ids) => {
-          dispatch(setSelected(ids))
+          setSelected(ids)
         }}
       ></DataGrid>
     </>

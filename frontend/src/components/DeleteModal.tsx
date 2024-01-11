@@ -1,29 +1,33 @@
 import { Box, Button, Modal } from "@mui/material";
 import { deleteStudents } from "../service/api";
-import { remove } from "../state/students/studentsSlice";
-import { useDispatch, useSelector } from "react-redux";
-import { RootState } from "../state/store";
-import { close } from "../state/modal/modalSlice";
-import { show } from "../state/message/messageSlice";
+import useStudentStore from "../state/studentsStore";
+import useSelectedStore from "../state/selectedStore";
+import useModalStore from "../state/modalStore";
+import useMessageStore from "../state/messageStore";
 
 export function DeleteModal() {
-  const students = useSelector((state: RootState) => state.students.value)
-  const selected = useSelector((state: RootState) => state.selected.value)
-  const modal = useSelector((state: RootState) => state.modal.value)
-  const dispatch = useDispatch()
+  const modal = useModalStore(state => state.value)
+  const students = useStudentStore(state => state.value)
+  const selected = useSelectedStore(state => state.value)
+
+  const closeModal = useModalStore(state => state.close)
+  const showMessage = useMessageStore(state => state.show)
+
+  const deleteStudentStore = useStudentStore(state => state.deleteStudent)
+
   const onClose = () => {
-    dispatch(close())
+    closeModal()
   };
   const deleteSelected = () => {
     const ids = selected.join(",");
     deleteStudents(ids).then(
-      (_) => dispatch(remove(selected))
+      (_) => deleteStudentStore(selected)
     );
-    dispatch(close())
-    dispatch(show({
+    closeModal()
+    showMessage({
       text: "Successfully deleted selected students",
       mode: "success",
-    }))
+    })
   };
 
   return (
@@ -82,7 +86,7 @@ export function DeleteModal() {
           <Button
             variant="outlined"
             onClick={() => {
-              dispatch(close())
+              closeModal()
             }}
           >
             Cancel
