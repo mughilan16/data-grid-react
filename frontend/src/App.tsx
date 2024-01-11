@@ -6,15 +6,14 @@ import { Alert, Button, Snackbar } from "@mui/material";
 import { DeleteModal } from "./components/DeleteModal";
 import { AddCircle, DeleteRounded, DetailsRounded, UpdateRounded } from "@mui/icons-material";
 import Details from "./components/Details";
-import useModalStore from "./state/modalStore";
-import useSelectedStore from "./state/selectedStore";
-import useMessageStore from "./state/messageStore";
+import useStore from "./state/useStore";
 
 export default function App() {
-  const openModal = useModalStore(state => state.open)
-  const selected = useSelectedStore(state => state.value)
-  const message = useMessageStore(state => state.value)
-  const hideMesssage = useMessageStore(state => state.hide)
+  const selected = useStore(state => state.selected)
+  const message = useStore(state => state.message)
+
+  const openModal = useStore(state => state.openModal)
+  const hideMesssage = useStore(state => state.hideMessage)
   return (
     <Box
       sx={{

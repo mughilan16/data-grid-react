@@ -1,19 +1,16 @@
 import { Box, Button, Modal } from "@mui/material";
 import { deleteStudents } from "../service/api";
-import useStudentStore from "../state/studentsStore";
-import useSelectedStore from "../state/selectedStore";
-import useModalStore from "../state/modalStore";
-import useMessageStore from "../state/messageStore";
+import useStore from "../state/useStore";
 
 export function DeleteModal() {
-  const modal = useModalStore(state => state.value)
-  const students = useStudentStore(state => state.value)
-  const selected = useSelectedStore(state => state.value)
+  const modal = useStore(state => state.modal)
+  const students = useStore(state => state.students)
+  const selected = useStore(state => state.selected)
 
-  const closeModal = useModalStore(state => state.close)
-  const showMessage = useMessageStore(state => state.show)
+  const closeModal = useStore(state => state.closeModal)
+  const showMessage = useStore(state => state.showMessage)
 
-  const deleteStudentStore = useStudentStore(state => state.deleteStudent)
+  const deleteStudentStore = useStore(state => state.deleteStudent)
 
   const onClose = () => {
     closeModal()

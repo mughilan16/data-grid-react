@@ -1,16 +1,14 @@
 import { Box, Modal } from "@mui/material";
-import useModalStore from "../state/modalStore";
-import useStudentStore from "../state/studentsStore";
-import useSelectedStore from "../state/selectedStore";
+import useStore from "../state/useStore";
 
 export default function Details() {
   const URL = "http://localhost:3001"
-  const modal = useModalStore(state => state.value)
-  const students = useStudentStore(state => state.value)
-  const selected = useSelectedStore(state => state.value)
+  const modal = useStore(state => state.modal)
+  const students = useStore(state => state.students)
+  const selected = useStore(state => state.selected)
   const student = students.filter(s => s.id === selected[0])[0]
 
-  const closeModal = useModalStore(state => state.close)
+  const closeModal = useStore(state => state.closeModal)
 
   const onClose = () => {
     closeModal()

@@ -11,18 +11,16 @@ import { Controller, useForm } from "react-hook-form";
 import { addStudent, addStudentRequest, uploadFile } from "../service/api";
 import { VisuallyHiddenInput } from "./FileInput";
 import { CloudUpload } from "@mui/icons-material";
-import useModalStore from "../state/modalStore";
-import useStudentStore from "../state/studentsStore";
-import useMessageStore from "../state/messageStore";
+import useStore from "../state/useStore";
 
 export function AddForm() {
   const { control, handleSubmit, reset, setValue } = useForm<addStudentRequest>();
-  const modal = useModalStore(state => state.value)
-  const students = useStudentStore(state => state.value)
-  const addNewStudent = useStudentStore(state => state.addStudent)
-  const addFile = useStudentStore(state => state.addFile)
-  const closeModal = useModalStore(state => state.close)
-  const showMessage = useMessageStore(state => state.show)
+  const modal = useStore(state => state.modal)
+  const students = useStore(state => state.students)
+  const addNewStudent = useStore(state => state.addStudent)
+  const addFile = useStore(state => state.addFile)
+  const closeModal = useStore(state => state.closeModal)
+  const showMessage = useStore(state => state.showMessage)
 
   const onSubmitAdd = (data: addStudentRequest) => {
     data.age = parseInt(`${data.age}`);
