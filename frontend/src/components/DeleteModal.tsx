@@ -1,30 +1,34 @@
 import { Box, Button, Modal } from "@mui/material";
-import { GridRowSelectionModel } from "@mui/x-data-grid";
-import { Student, deleteStudents } from "../service/api";
+import { deleteStudents } from "../service/api";
+import { remove } from "../state/students/studentsSlice";
+import { useDispatch, useSelector } from "react-redux";
+import { RootState } from "../state/store";
+import { close } from "../state/modal/modalSlice";
+import { show } from "../state/message/messageSlice";
 
-export function DeleteModal(props: {
-  students: Array<Student>;
-  setStudents: React.Dispatch<React.SetStateAction<Array<Student>>>;
-  isOpen: boolean;
-  setIsOpen: React.Dispatch<React.SetStateAction<boolean>>;
-  setMessageOpen: React.Dispatch<React.SetStateAction<boolean>>;
-  selectedStudents: GridRowSelectionModel;
-}) {
+export function DeleteModal() {
+  const students = useSelector((state: RootState) => state.students.value)
+  const selected = useSelector((state: RootState) => state.selected.value)
+  const modal = useSelector((state: RootState) => state.modal.value)
+  const dispatch = useDispatch()
   const onClose = () => {
-    props.setIsOpen(false);
+    dispatch(close())
   };
   const deleteSelected = () => {
-    const ids = props.selectedStudents.join(",");
-    deleteStudents(ids);
-    props.setStudents((prev) =>
-      prev.filter((student) => !props.selectedStudents.includes(student.id))
+    const ids = selected.join(",");
+    deleteStudents(ids).then(
+      (_) => dispatch(remove(selected))
     );
-    props.setIsOpen(false);
-    props.setMessageOpen(true);
+    dispatch(close())
+    dispatch(show({
+      text: "Successfully deleted selected students",
+      mode: "success",
+    }))
   };
+
   return (
     <Modal
-      open={props.isOpen}
+      open={modal.show && modal.type === "delete"}
       onClose={onClose}
       aria-labelledby="modal-modal-title"
       aria-describedby="modal-modal-description"
@@ -46,6 +50,7 @@ export function DeleteModal(props: {
           p: 3,
         }}
       >
+
         <Box sx={{ fontSize: "1.4rem" }}>
           <Box sx={{ fontWeight: 400 }}>
             This will permanently delete the details of following students
@@ -57,8 +62,8 @@ export function DeleteModal(props: {
               fontFamily: "monospace",
             }}
           >
-            {props.students
-              .filter((student) => props.selectedStudents.includes(student.id))
+            {students
+              .filter((student) => selected.includes(student.id))
               .map((student) => (
                 <Box key={student.id}>{student.name}</Box>
               ))}
@@ -77,7 +82,7 @@ export function DeleteModal(props: {
           <Button
             variant="outlined"
             onClick={() => {
-              props.setIsOpen(false);
+              dispatch(close())
             }}
           >
             Cancel

@@ -2,57 +2,19 @@ import Box from "@mui/material/Box";
 import { AddForm } from "./components/AddForm";
 import { UpdateForm } from "./components/UpdateForm";
 import { Table } from "./components/Table";
-import { useState } from "react";
-import { Student } from "./service/api";
 import { Alert, Button, Snackbar } from "@mui/material";
-import { GridRowSelectionModel } from "@mui/x-data-grid";
 import { DeleteModal } from "./components/DeleteModal";
 import { AddCircle, DeleteRounded, DetailsRounded, UpdateRounded } from "@mui/icons-material";
 import Details from "./components/Details";
+import { useDispatch, useSelector } from "react-redux";
+import { RootState } from "./state/store";
+import { open } from "./state/modal/modalSlice";
+import { hide } from "./state/message/messageSlice";
 
 export default function App() {
-  const [students, setStudents] = useState(new Array<Student>());
-  const [addModal, setAddModal] = useState(false);
-  const [updateModal, setUpdateModal] = useState(false);
-  const [deleteModal, setDeleteModal] = useState(false);
-  const [detailsModal, setDetailsModal] = useState(false);
-
-  const [deleteMessageOpen, setDeleteMessageOpen] = useState(false);
-  const [addMessageOpen, setAddMessageOpen] = useState<ErrorMessage>({
-    open: false,
-    message: "",
-    mode: "success",
-  });
-  type ErrorMessage = {
-    open: boolean;
-    mode: "success" | "info" | "error";
-    message: string;
-  };
-  const [updateMessageOpen, setUpdateMessageOpen] = useState<ErrorMessage>({
-    open: false,
-    message: "",
-    mode: "success",
-  });
-  const handleDeleteMessageClose = () => {
-    setDeleteMessageOpen(false);
-  };
-  const handleUpdateMessageClose = () => {
-    setUpdateMessageOpen({
-      open: false,
-      message: "",
-      mode: "success",
-    });
-  };
-  const handleAddMessageClose = () => {
-    setAddMessageOpen({
-      open: false,
-      message: "",
-      mode: "success",
-    });
-  };
-
-  const [selectedStudents, setSelectedStudents] =
-    useState<GridRowSelectionModel>([]);
+  const dispatch = useDispatch()
+  const selected = useSelector((state: RootState) => state.selected.value)
+  const message = useSelector((state: RootState) => state.message.value)
   return (
     <Box
       sx={{
@@ -73,24 +35,19 @@ export default function App() {
           padding: "20px",
         }}
       >
-        <Table
-          students={students}
-          setStudents={setStudents}
-          selectedRow={selectedStudents}
-          setSelectedRow={setSelectedStudents}
-        />
+        <Table />
         <Box
           sx={{ display: "flex", flexDirection: "row-reverse", gap: "1rem" }}
         >
-          <Button onClick={() => setAddModal(true)} variant="contained"
+          <Button onClick={() => dispatch(open({ show: true, type: "add" }))} variant="contained"
             startIcon={<AddCircle />}
           >
             Add Student
           </Button>
           <Button
             startIcon={<DeleteRounded />}
-            disabled={selectedStudents.length === 0}
-            onClick={() => setDeleteModal(true)}
+            disabled={selected.length === 0}
+            onClick={() => dispatch(open({ show: true, type: "delete" }))}
             variant="contained"
             color="error"
           >
@@ -98,8 +55,8 @@ export default function App() {
           </Button>
           <Button
             startIcon={<UpdateRounded />}
-            disabled={selectedStudents.length !== 1}
-            onClick={() => setUpdateModal(true)}
+            disabled={selected.length !== 1}
+            onClick={() => dispatch(open({ show: true, type: "update" }))}
             variant="contained"
             color="success"
           >
@@ -107,82 +64,31 @@ export default function App() {
           </Button>
           <Button
             startIcon={<DetailsRounded />}
-            disabled={selectedStudents.length !== 1}
-            onClick={() => setDetailsModal(true)}
+            disabled={selected.length !== 1}
+            onClick={() => dispatch(open({ show: true, type: "detail" }))}
             variant="contained"
             color="info"
           >
-          Details
+            Details
           </Button>
-          <AddForm
-            students={students}
-            setStudents={setStudents}
-            isOpen={addModal}
-            setIsOpen={setAddModal}
-            setMessageOpen={setAddMessageOpen}
-          />
-          <UpdateForm
-            students={students}
-            student={students.filter(s => s.id === selectedStudents[0])[0]}
-            setStudents={setStudents}
-            isOpen={updateModal}
-            setIsOpen={setUpdateModal}
-            setMessageOpen={setUpdateMessageOpen}
-          />
-          <DeleteModal
-            isOpen={deleteModal}
-            setIsOpen={setDeleteModal}
-            selectedStudents={selectedStudents}
-            students={students}
-            setStudents={setStudents}
-            setMessageOpen={setDeleteMessageOpen}
-          ></DeleteModal>
+          <AddForm />
+          <UpdateForm />
+          <DeleteModal ></DeleteModal>
           <Details
-            isOpen={detailsModal}
-            setIsOpen={setDetailsModal}
-            student={students.filter(s => s.id === selectedStudents[0])[0]}
           />
         </Box>
       </Box>
       <Snackbar
-        open={deleteMessageOpen}
+        open={message.show}
         autoHideDuration={5000}
-        onClose={handleDeleteMessageClose}
+        onClose={() => dispatch(hide())}
       >
         <Alert
-          onClose={handleDeleteMessageClose}
+          onClose={() => dispatch(hide())}
           severity="error"
           sx={{ width: "100%" }}
         >
-          Successfully delete the selected students details
-        </Alert>
-      </Snackbar>
-
-      <Snackbar
-        open={addMessageOpen.open}
-        autoHideDuration={5000}
-        onClose={handleAddMessageClose}
-      >
-        <Alert
-          onClose={handleAddMessageClose}
-          severity={addMessageOpen.mode}
-          sx={{ width: "100%" }}
-        >
-          {addMessageOpen.message}
-        </Alert>
-      </Snackbar>
-
-      <Snackbar
-        open={updateMessageOpen.open}
-        autoHideDuration={5000}
-        onClose={handleUpdateMessageClose}
-      >
-        <Alert
-          onClose={handleUpdateMessageClose}
-          severity="info"
-          sx={{ width: "100%" }}
-        >
-          {updateMessageOpen.message}
+          {message.text}
         </Alert>
       </Snackbar>
     </Box>

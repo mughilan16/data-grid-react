@@ -1,18 +1,21 @@
 import { Box, Modal } from "@mui/material";
-import { Student } from "../service/api";
+import { useDispatch, useSelector } from "react-redux";
+import { RootState } from "../state/store";
+import { close } from "../state/modal/modalSlice";
 
-export default function Details(props: {
-  isOpen: boolean;
-  setIsOpen: React.Dispatch<React.SetStateAction<boolean>>;
-  student: Student
-}) {
+export default function Details() {
   const URL = "http://localhost:3001"
+  const dispatch = useDispatch()
+  const students = useSelector((state: RootState)=> state.students.value)
+  const selected = useSelector((state: RootState) => state.selected.value)
+  const modal = useSelector((state: RootState) => state.modal.value)
+  const student = students.filter(s => s.id === selected[0])[0]
   const onClose = () => {
-    props.setIsOpen(false);
+    dispatch(close())
   };
   return (
     <Modal
-      open={props.isOpen}
+      open={modal.show && modal.type === "detail"}
       onClose={onClose}
       aria-labelledby="modal-modal-title"
       aria-describedby="modal-modal-description"
@@ -35,16 +38,16 @@ export default function Details(props: {
         }}
       >
         {
-          props.student !== undefined &&
+          student !== undefined &&
           <Box sx={{ fontSize: "1.2rem" }}>
-            <img src={`${URL}/${props.student.fileName}`} width="100%"></img>
+            <img src={`${URL}/${student.fileName}`} width="100%"></img>
             <Box sx={{p: "1rem"}}>
-              <Box>ID: {props.student?.id}</Box>
-              <Box>RRN: {props.student?.rrn}</Box>
-              <Box>NAME: {props.student?.name}</Box>
-              <Box>AGE: {props.student?.age}</Box>
-              <Box>GRADE: {props.student?.grade}</Box>
-              <Box>PLACE: {props.student?.place}</Box>
+              <Box>ID: {student?.id}</Box>
+              <Box>RRN: {student?.rrn}</Box>
+              <Box>NAME: {student?.name}</Box>
+              <Box>AGE: {student?.age}</Box>
+              <Box>GRADE: {student?.grade}</Box>
+              <Box>PLACE: {student?.place}</Box>
             </Box>
           </Box>
         }
